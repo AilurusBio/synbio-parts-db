@@ -1,0 +1,46 @@
+{
+  "uid": "unique_identifier_string",
+  "hash_id": "hash_string",
+  "name": "part_name",
+  
+  "level": "part_level",
+  "type": "main_type_from_classification",
+  "type_level_1": "DNA Elements",
+  "type_level_2": "Regulatory",
+  "type_level_3": "Promoter_constitutive",
+  "categories": [
+    "category1_from_classification",
+    "category2_from_classification"
+  ],
+  "plasmid_id": "plasmid_identifier",
+  
+  "description": "Description:\nDetailed description of the part\n\nApplication Notes:\n- Note 1\n- Note 2\n\nAdditional Notes:\n- Additional info 1\n- Additional info 2",
+  "author": "author_name",
+  "references": [
+    "reference_url1",
+    "reference_url2"
+  ],
+  
+  "sequence": "ATCG...",
+  "sequence_gc_content": 0.5,
+  "sequence_verified": true,
+  
+  "source_collection": "collection_name",
+  "source_name": "source_name",
+  "source_validation_status": "validation_status",
+  
+  "similarity_cluster": "cluster_id",
+  "similarity_is_representative": false,
+  "similarity_similar_sequences": [
+    "similar_sequence_id1",
+    "similar_sequence_id2"
+  ],
+  
+  "last_modified": "2024-03-16",
+  "version": "1.0",
+  "status": "active",
+  
+  "metadata_organism": "organism_name",
+  "metadata_expression_system": "expression_system",
+  "metadata_safety_level": "safety_level"
+} 

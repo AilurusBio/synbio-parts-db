@@ -1,0 +1,61 @@
+Parts Classification Tree
+
+[type-level-1] DNA Elements (DNA功能元件)
+├── [type-level-2] Regulatory
+│   ├── [type-level-3] Promoter
+│   ├── [type-level-3] Terminator
+│   ├── [type-level-3] RBS
+│   └── [type-level-3] UTR
+├── [type-level-2] Structural
+│   ├── [type-level-3] Origin
+│   ├── [type-level-3] PolyA
+│   └── [type-level-3] Homology_arm
+└── [type-level-2] Binding
+    ├── [type-level-3] Protein_binding
+    └── [type-level-3] Primer_binding
+
+[type-level-1] Coding Sequences (CDS功能)
+├── [type-level-2] Reporter
+│   ├── [type-level-3] Fluorescent_proteins
+│   ├── [type-level-3] Chromoproteins
+│   └── [type-level-3] Luminescent_proteins
+├── [type-level-2] Enzyme
+│   ├── [type-level-3] Nucleic_acid_processing
+│   ├── [type-level-3] Protein_processing
+│   └── [type-level-3] Metabolic_enzyme
+├── [type-level-2] Membrane_proteins
+│   ├── [type-level-3] Channels_and_pumps
+│   ├── [type-level-3] Receptors
+│   └── [type-level-3] Transporters
+└── [type-level-2] Regulatory_proteins
+    ├── [type-level-3] Transcription_factors
+    ├── [type-level-3] Signal_proteins
+    └── [type-level-3] Repressors
+
+[type-level-1] RNA Elements (RNA功能)
+├── [type-level-2] Guide_RNA
+│   ├── [type-level-3] CRISPR_related
+│   ├── [type-level-3] RNA_interference
+│   └── [type-level-3] Base_editing
+├── [type-level-2] Regulatory_RNA
+│   ├── [type-level-3] Riboswitches
+│   ├── [type-level-3] Ribozymes
+│   └── [type-level-3] Regulatory_elements
+└── [type-level-2] Structural_RNA
+    ├── [type-level-3] Scaffold_RNA
+    ├── [type-level-3] Aptamers
+    └── [type-level-3] Structural_elements
+
+[type-level-1] Application (应用场景)
+├── [type-level-2] Biosafety
+│   ├── [type-level-3] Kill_switches
+│   ├── [type-level-3] Containment_systems
+│   └── [type-level-3] Safety_circuits
+├── [type-level-2] Biosynthesis
+│   ├── [type-level-3] Metabolic_pathways
+│   ├── [type-level-3] Product_synthesis
+│   └── [type-level-3] Pathway_optimization
+└── [type-level-2] Biocontrol
+    ├── [type-level-3] Biosensors
+    ├── [type-level-3] Regulators
+    └── [type-level-3] Control_circuits 

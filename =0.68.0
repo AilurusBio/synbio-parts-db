@@ -1,0 +1,15 @@
+Collecting fastapi
+  Downloading fastapi-0.115.12-py3-none-any.whl.metadata (27 kB)
+Collecting starlette<0.47.0,>=0.40.0 (from fastapi)
+  Downloading starlette-0.46.2-py3-none-any.whl.metadata (6.2 kB)
+Requirement already satisfied: pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4 in /home/songjie/miniconda3/lib/python3.12/site-packages (from fastapi) (2.10.3)
+Requirement already satisfied: typing-extensions>=4.8.0 in /home/songjie/miniconda3/lib/python3.12/site-packages (from fastapi) (4.12.2)
+Requirement already satisfied: annotated-types>=0.6.0 in /home/songjie/miniconda3/lib/python3.12/site-packages (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi) (0.6.0)
+Requirement already satisfied: pydantic-core==2.27.1 in /home/songjie/miniconda3/lib/python3.12/site-packages (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi) (2.27.1)
+Requirement already satisfied: anyio<5,>=3.6.2 in /home/songjie/miniconda3/lib/python3.12/site-packages (from starlette<0.47.0,>=0.40.0->fastapi) (4.9.0)
+Requirement already satisfied: idna>=2.8 in /home/songjie/miniconda3/lib/python3.12/site-packages (from anyio<5,>=3.6.2->starlette<0.47.0,>=0.40.0->fastapi) (3.7)
+Requirement already satisfied: sniffio>=1.1 in /home/songjie/miniconda3/lib/python3.12/site-packages (from anyio<5,>=3.6.2->starlette<0.47.0,>=0.40.0->fastapi) (1.3.1)
+Downloading fastapi-0.115.12-py3-none-any.whl (95 kB)
+Downloading starlette-0.46.2-py3-none-any.whl (72 kB)
+Installing collected packages: starlette, fastapi
+Successfully installed fastapi-0.115.12 starlette-0.46.2
