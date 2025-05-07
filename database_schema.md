@@ -14,7 +14,7 @@
 | 字段路径 | 类型 | 说明 | 示例 |
 |---------|------|------|------|
 | `id` | string | 唯一标识符 | "b2a9a2cbe74041a7df243abe93bc5bf7" |
-| `synbio_parts_id` | string | 生物系统工程ID | "BSE_TEMP00101" |
+| `synbio_parts_id` | string | 部件ID | "PART_TEMP00101" |
 | `label` | string | 部件标签名 | "4-1BB" |
 | `level` | string | 层级类型 | "part" |
 | `version` | string | 版本号 | "1.0" |
