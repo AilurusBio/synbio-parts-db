@@ -14,7 +14,7 @@
 | 字段路径 | 类型 | 说明 | 示例 |
 |---------|------|------|------|
 | `id` | string | 唯一标识符 | "b2a9a2cbe74041a7df243abe93bc5bf7" |
-| `biosysen_id` | string | 生物系统工程ID | "BSE_TEMP00101" |
+| `synbio_parts_id` | string | 生物系统工程ID | "BSE_TEMP00101" |
 | `label` | string | 部件标签名 | "4-1BB" |
 | `level` | string | 层级类型 | "part" |
 | `version` | string | 版本号 | "1.0" |
@@ -52,7 +52,7 @@
 |---------|------|------|------|
 | `source.database` | string | 数据库名称 | "SynBio Parts DB" |
 | `source.version` | string | 数据库版本 | "V1.2" |
-| `source.collection` | string | 集合名称 | "biosysen" |
+| `source.collection` | string | 集合名称 | "synbio_parts" |
 | `source.validation_status` | string | 验证状态 | "unverified" |
 | `source.last_updated` | datetime | 最后更新时间 | "2025-03-12T02:46:24.259Z" |
 

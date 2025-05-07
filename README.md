@@ -73,7 +73,7 @@ Main collections:
 ### Part Fields
 ```json
 {
-    "biosysen_id": "BSE_TEMP00101",
+    "part_id": "PART_TEMP00101",
     "label": "4-1BB",
     "type_info": {
         "main_type": "t_cell_signaling_domain",
@@ -99,7 +99,7 @@ Main collections:
     "source": {
         "database": "SynBio Parts DB",
         "version": "V1.2",
-        "collection": "biosysen",
+        "collection": "synbio_parts",
         "last_updated": "2025-02-18T00:10:00+08:00"
     },
     "creation_date": "2025-02-18T00:10:00+08:00",
