@@ -5,6 +5,7 @@ from sentence_transformers import SentenceTransformer
 import argparse
 import requests
 import json
+import os
 
 class SemanticSearch:
     def __init__(self):
@@ -39,7 +40,7 @@ class SemanticSearch:
             # DeepSeek API 配置
             url = "https://api.deepseek.com/v1/chat/completions"
             headers = {
-                "Authorization": "Bearer sk-67eade3849cb4a0396471a89cc22fa1c",  # 需要替换为实际的 API key
+                "Authorization": f"Bearer {os.getenv('SEARCH_API_KEY')}",  # 使用环境变量获取API key
                 "Content-Type": "application/json"
             }
             

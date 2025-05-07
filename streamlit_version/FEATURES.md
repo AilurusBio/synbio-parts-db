@@ -1,136 +1,136 @@
-# 工程导向合成生物学零件数据库功能特点
+# Engineering-Oriented Synthetic Biology Parts Database Features
 
-## 数据库架构
-### MongoDB数据模型
-- 零件集合(parts)完整数据模型
-  - 基本信息(ID、名称、描述、分类)
-  - 来源信息(生物体、设计者、文献)
-  - 序列信息(完整序列、核心序列、标准接口)
-  - 工程特性(表达系统、组装特性、兼容性)
-  - 实验数据(表达验证、功能测试、稳定性、安全性)
-  - 使用统计(下载量、成功/失败案例、评分)
-  - 元数据(创建/更新时间、版本)
-- 优化的索引设计
-  - 唯一索引: part_id
-  - 常用查询索引: 名称、类别、载体、宿主等
-  - 全文搜索: 序列
+## Database Architecture
+### MongoDB Data Model
+- Complete Parts Collection Data Model
+  - Basic Information (ID, Name, Description, Classification)
+  - Source Information (Organism, Designer, Literature)
+  - Sequence Information (Complete Sequence, Core Sequence, Standard Interface)
+  - Engineering Properties (Expression System, Assembly Properties, Compatibility)
+  - Experimental Data (Expression Validation, Functional Testing, Stability, Safety)
+  - Usage Statistics (Downloads, Success/Failure Cases, Ratings)
+  - Metadata (Creation/Update Time, Version)
+- Optimized Index Design
+  - Unique Index: part_id
+  - Common Query Indexes: Name, Category, Vector, Host, etc.
+  - Full-text Search: Sequence
 
-## 主页功能 (Home.py)
-### 数据库概览
-- 零件总数统计
-- 功能类别统计
-- 宿主范围统计
-- 兼容载体统计
+## Home Page Features (Home.py)
+### Database Overview
+- Total Parts Statistics
+- Functional Category Statistics
+- Host Range Statistics
+- Compatible Vector Statistics
 
-### 数据可视化
-- 零件类别分布饼图
-- 应用成功率条形图
+### Data Visualization
+- Parts Category Distribution Pie Chart
+- Application Success Rate Bar Chart
 
-### 工程特性展示
-- 标准化接口说明
-- 表达系统优化说明
-- 兼容性验证说明
-- 性能表征说明
+### Engineering Properties Display
+- Standard Interface Description
+- Expression System Optimization Description
+- Compatibility Validation Description
+- Performance Characterization Description
 
-## 零件浏览器 (1_Parts_Browser.py)
-### 高级搜索筛选
-- 文本搜索(ID、名称、描述)
-- 功能类别筛选
-- 宿主菌株筛选
-- 表达载体筛选
-- 组装标准筛选
-- 启动子强度筛选
-- 最低应用成功率筛选
+## Parts Browser (1_Parts_Browser.py)
+### Advanced Search Filtering
+- Text Search (ID, Name, Description)
+- Functional Category Filtering
+- Host Strain Filtering
+- Expression Vector Filtering
+- Assembly Standard Filtering
+- Promoter Strength Filtering
+- Minimum Application Success Rate Filtering
 
-### 零件详情展示
-- 基本信息展示
-  - ID和名称
-  - 功能分类
-  - 子类别
-- 工程特性展示
-  - 启动子强度
-  - 组装标准
-  - 宿主范围
-  - 载体兼容性
-- 序列特征展示
-  - 序列长度
-  - GC含量
-  - 分子量
-  - 应用成功率
-- 实验数据展示
-  - 表达验证数据
-  - 功能测试数据
+### Part Details Display
+- Basic Information Display
+  - ID and Name
+  - Functional Classification
+  - Subcategory
+- Engineering Properties Display
+  - Promoter Strength
+  - Assembly Standard
+  - Host Range
+  - Vector Compatibility
+- Sequence Features Display
+  - Sequence Length
+  - GC Content
+  - Molecular Weight
+  - Application Success Rate
+- Experimental Data Display
+  - Expression Validation Data
+  - Functional Testing Data
 
-## 序列分析工具 (2_Sequence_Analysis.py)
-### DNA序列分析
-- 基本特征分析
-  - 序列长度
-  - GC含量
-  - 分子量
-- 碱基组成分析(饼图)
-- 密码子使用分析(条形图)
-- 限制性内切酶位点检查
+## Sequence Analysis Tools (2_Sequence_Analysis.py)
+### DNA Sequence Analysis
+- Basic Feature Analysis
+  - Sequence Length
+  - GC Content
+  - Molecular Weight
+- Base Composition Analysis (Pie Chart)
+- Codon Usage Analysis (Bar Chart)
+- Restriction Enzyme Site Check
 
-### 蛋白质序列分析
-- 基本特征分析
-  - 序列长度
-  - 分子量
-  - 等电点
-- 理化性质分析
-  - 芳香度
-  - 不稳定指数
-  - GRAVY值
-- 氨基酸组成分析(条形图)
-- 二级结构预测(饼图)
+### Protein Sequence Analysis
+- Basic Feature Analysis
+  - Sequence Length
+  - Molecular Weight
+  - Isoelectric Point
+- Physicochemical Properties Analysis
+  - Aromaticity
+  - Instability Index
+  - GRAVY Value
+- Amino Acid Composition Analysis (Bar Chart)
+- Secondary Structure Prediction (Pie Chart)
 
-### 数据导出
-- DNA分析结果导出
-- 蛋白质分析结果导出
+### Data Export
+- DNA Analysis Results Export
+- Protein Analysis Results Export
 
-## 统计分析 (3_Statistics.py)
-### 零件类型分析
-- 类型分布饼图
-- 成功率对比条形图
+## Statistical Analysis (3_Statistics.py)
+### Part Type Analysis
+- Type Distribution Pie Chart
+- Success Rate Comparison Bar Chart
 
-### 宿主兼容性分析
-- 零件数量统计
-- 平均成功率统计
+### Host Compatibility Analysis
+- Part Count Statistics
+- Average Success Rate Statistics
 
-### 表达系统分析
-- 启动子强度分布
-- 成功率关联分析
+### Expression System Analysis
+- Promoter Strength Distribution
+- Success Rate Correlation Analysis
 
-### 序列特征分析
-- 序列长度分布箱线图
+### Sequence Feature Analysis
+- Sequence Length Distribution Box Plot
 
-### 稳定性分析
-- 遗传稳定性对比
-- 表达稳定性对比
-- 代谢负担对比
+### Stability Analysis
+- Genetic Stability Comparison
+- Expression Stability Comparison
+- Metabolic Burden Comparison
 
-### 数据导出
-- 完整统计数据导出
+### Data Export
+- Complete Statistics Export
 
-## 技术特点
-### 性能优化
-- MongoDB索引优化
-- 数据缓存(@st.cache_data)
-- 资源缓存(@st.cache_resource)
+## Technical Features
+### Performance Optimization
+- MongoDB Index Optimization
+- Data Caching (@st.cache_data)
+- Resource Caching (@st.cache_resource)
 
-### 用户体验
-- 响应式布局
-- 直观的数据可视化
-- 灵活的筛选系统
-- 完整的数据导出
+### User Experience
+- Responsive Layout
+- Intuitive Data Visualization
+- Flexible Filtering System
+- Complete Data Export
 
-### 工程导向
-- 完整的工程参数
-- 实验验证数据
-- 应用案例统计
-- 兼容性信息
+### Engineering Orientation
+- Complete Engineering Parameters
+- Experimental Validation Data
+- Application Case Statistics
+- Compatibility Information
 
-## 更新日志
+## Update Log
 ### 2024-03-12
-- 初始版本发布
-- 完成基础数据模型设计
-- 实现主要功能模块 
+- Initial Version Release
+- Complete Basic Data Model Design
+- Implement Main Function Modules 

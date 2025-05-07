@@ -1,6 +1,7 @@
 # Environment variables
 .env
 .env.*
+!.env.example
 
 # Python
 __pycache__/
@@ -42,4 +43,49 @@ Thumbs.db
 
 # Project specific
 app/
-backup/ 
+backup/
+
+# Database files
+*.db
+*.lance
+*.sqlite
+*.sqlite3
+
+# Model files and caches
+models/
+.cache/
+transformers/
+sentence_transformers/
+
+# Logs
+*.log
+logs/
+log/
+
+# Temporary files
+tmp/
+temp/
+.tmp/
+.temp/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg 

@@ -1,109 +1,109 @@
-# 工程导向的合成生物学零件数据库需求分析
+# Engineering-Oriented Synthetic Biology Parts Database Requirements Analysis
 
-## 1. 系统定位
-工程导向的合成生物学零件数据库，重点关注零件的实际应用价值、可靠性和工程实践指导。
+## 1. System Positioning
+Engineering-oriented synthetic biology parts database, focusing on practical application value, reliability, and engineering practice guidance.
 
-## 2. 核心功能需求
+## 2. Core Functional Requirements
 
-### 2.1 零件信息管理
-#### 基本信息
-- ID和名称：统一编号系统
-- 功能分类：按工程应用场景分类
-- 来源信息：原始生物体、设计者、文献引用
-- 序列信息：
-  - 标准化接口序列
-  - 核心功能序列
-  - 完整序列
+### 2.1 Parts Information Management
+#### Basic Information
+- ID and Name: Unified numbering system
+- Functional Classification: Classification by engineering application scenarios
+- Source Information: Original organism, designer, literature references
+- Sequence Information:
+  - Standardized interface sequences
+  - Core functional sequences
+  - Complete sequences
 
-#### 工程特性
-- 表达系统：
-  - 启动子强度
-  - 诱导条件
-  - 表达动力学
-- 组装特性：
-  - 标准组装接口
-  - 限制性内切酶位点
-  - 组装方式说明
-- 兼容性信息：
-  - 载体系统
-  - 宿主范围
-  - 已验证组合
+#### Engineering Properties
+- Expression System:
+  - Promoter strength
+  - Induction conditions
+  - Expression dynamics
+- Assembly Properties:
+  - Standard assembly interfaces
+  - Restriction enzyme sites
+  - Assembly method instructions
+- Compatibility Information:
+  - Vector systems
+  - Host range
+  - Verified combinations
 
-#### 实验数据
-- 表达验证：
+#### Experimental Data
+- Expression Validation:
   - Western Blot
-  - 荧光检测
-  - 其他验证方法
-- 功能测试：
-  - 活性数据
-  - 动力学参数
-  - 响应曲线
-- 稳定性评估：
-  - 遗传稳定性
-  - 表达稳定性
-  - 功能稳定性
-- 安全性数据：
-  - 毒性评估
-  - 代谢负担
-  - 生长影响
+  - Fluorescence detection
+  - Other validation methods
+- Functional Testing:
+  - Activity data
+  - Kinetic parameters
+  - Response curves
+- Stability Assessment:
+  - Genetic stability
+  - Expression stability
+  - Functional stability
+- Safety Data:
+  - Toxicity assessment
+  - Metabolic burden
+  - Growth impact
 
-### 2.2 工程工具集
-- 序列分析工具
-- 组装策略设计
-- 表达优化建议
-- 兼容性检查
-- 实验方案生成
+### 2.2 Engineering Toolset
+- Sequence analysis tools
+- Assembly strategy design
+- Expression optimization suggestions
+- Compatibility checking
+- Experimental protocol generation
 
-### 2.3 数据分析与统计
-- 应用统计：
-  - 使用频率
-  - 成功案例
-  - 失败案例分析
-- 性能统计：
-  - 表达水平分布
-  - 组装效率
-  - 稳定性数据
+### 2.3 Data Analysis and Statistics
+- Application Statistics:
+  - Usage frequency
+  - Success cases
+  - Failure case analysis
+- Performance Statistics:
+  - Expression level distribution
+  - Assembly efficiency
+  - Stability data
 
-### 2.4 用户交互
-- 零件搜索与筛选
-- 数据可视化
-- 实验方案生成
-- 结果导出
+### 2.4 User Interaction
+- Parts search and filtering
+- Data visualization
+- Experimental protocol generation
+- Results export
 
-## 3. 系统架构
+## 3. System Architecture
 
-### 3.1 数据库结构
-- MongoDB集合设计
-- 数据模型定义
-- 索引优化
+### 3.1 Database Structure
+- MongoDB collection design
+- Data model definition
+- Index optimization
 
-### 3.2 应用层架构
-- Streamlit页面组织
-- 功能模块划分
-- 工具集成
+### 3.2 Application Layer Architecture
+- Streamlit page organization
+- Functional module division
+- Tool integration
 
-## 4. 开发步骤
+## 4. Development Steps
 
-### Phase 1: 基础功能实现
-1. 零件信息展示
-2. 基本搜索功能
-3. 序列分析工具
-4. 数据统计展示
+### Phase 1: Basic Function Implementation
+1. Parts information display
+2. Basic search functionality
+3. Sequence analysis tools
+4. Data statistics display
 
-### Phase 2: 工程工具开发
-1. 组装策略设计
-2. 表达优化建议
-3. 兼容性检查
-4. 实验方案生成
+### Phase 2: Engineering Tool Development
+1. Assembly strategy design
+2. Expression optimization suggestions
+3. Compatibility checking
+4. Experimental protocol generation
 
-### Phase 3: 高级功能整合
-1. 批量数据处理
-2. 高级搜索功能
-3. 可视化增强
-4. 用户交互优化
+### Phase 3: Advanced Function Integration
+1. Batch data processing
+2. Advanced search functionality
+3. Visualization enhancement
+4. User interaction optimization
 
-### Phase 4: 系统优化
-1. 性能优化
-2. 用户界面美化
-3. 文档完善
-4. 功能测试 
+### Phase 4: System Optimization
+1. Performance optimization
+2. User interface beautification
+3. Documentation completion
+4. Functional testing 
