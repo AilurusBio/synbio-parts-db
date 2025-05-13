@@ -378,7 +378,7 @@ uvicorn.run(app, host="0.0.0.0", port=8000)
 
 # Streamlit Configuration
 st.set_page_config(
-    page_title="Synthetic Biology Parts Database",
+    page_title="SynVectorDB: Embedding-Based Retrieval System for Synthetic Biology Parts",
     page_icon="🧬",
     layout="wide"
 )

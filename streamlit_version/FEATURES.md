@@ -1,4 +1,4 @@
-# Engineering-Oriented Synthetic Biology Parts Database Features
+# SynVectorDB: Embedding-Based Retrieval System for Synthetic Biology Parts Features
 
 ## Database Architecture
 ### MongoDB Data Model

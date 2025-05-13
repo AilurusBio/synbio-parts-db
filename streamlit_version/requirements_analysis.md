@@ -1,4 +1,4 @@
-# Engineering-Oriented Synthetic Biology Parts Database Requirements Analysis
+# SynVectorDB: Embedding-Based Retrieval System for Synthetic Biology Parts Requirements Analysis
 
 ## 1. System Positioning
 Engineering-oriented synthetic biology parts database, focusing on practical application value, reliability, and engineering practice guidance.
