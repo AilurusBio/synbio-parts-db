@@ -1,0 +1,5 @@
+[pages]
+"parts_browser.py" = "Parts Browser"
+"qa.py" = "Question & Answer"
+"semantic_search.py" = "Semantic Search"
+"mcp_server.py" = "API Server"
