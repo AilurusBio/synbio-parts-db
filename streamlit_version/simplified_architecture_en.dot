@@ -1,0 +1,117 @@
+digraph G {
+    graph [fontname = "Arial", rankdir=TB, splines=ortho, nodesep=1.0, ranksep=1.2, pad=0.7, compound=true];
+    node [fontname = "Arial", shape=box, style="filled,rounded", fontsize=12, margin=0.3, width=2.2, height=0.8, fixedsize=true];
+    edge [fontname = "Arial", fontsize=10, style=solid];
+    
+    // UI Layer (Top Layer)
+    subgraph cluster_ui {
+        label="User Interface Layer (Streamlit)";
+        fontsize=16;
+        style="filled";
+        fillcolor="#FFFFEE";
+        color="#CCCC99";
+        margin=15;
+        
+        search_ui [label="Semantic Search\nInterface", fillcolor="#EEEEDD"];
+        browse_ui [label="Categorized\nBrowsing", fillcolor="#EEEEDD"];
+        qa_ui [label="Professional\nQ&A System", fillcolor="#EEEEDD"];
+        visual_ui [label="Data\nVisualization", fillcolor="#EEEEDD"];
+        
+        {rank=same; search_ui; browse_ui; qa_ui; visual_ui}
+    }
+    
+    // Simplified API Layer
+    subgraph cluster_api {
+        label="API Layer";
+        fontsize=16;
+        style="filled";
+        fillcolor="#FFEEEE";
+        color="#CC9999";
+        margin=15;
+        
+        mcp_server [label="MCP Server\n(FastAPI)", fillcolor="#FFDDDD"];
+        api_tools [label="Dynamic API\nTools", fillcolor="#FFDDDD"];
+        
+        {rank=same; mcp_server; api_tools}
+    }
+    
+    // Vector Retrieval Layer
+    subgraph cluster_retrieval {
+        label="Vector Retrieval Layer";
+        fontsize=16;
+        style="filled";
+        fillcolor="#FFEEFF";
+        color="#CC99CC";
+        margin=15;
+        
+        query_proc [label="Query Processing\n& Vectorization", fillcolor="#EECCEE"];
+        vector_search [label="Vector Similarity\nSearch", fillcolor="#EECCEE"];
+        filter [label="Multi-dimensional\nFiltering", fillcolor="#EECCEE"];
+        
+        {rank=same; query_proc; vector_search; filter}
+    }
+    
+    // Data Processing Layer - Highlight three main processing steps
+    subgraph cluster_processing {
+        label="Data Processing Layer";
+        fontsize=16;
+        style="filled";
+        fillcolor="#EEFFEE";
+        color="#99CC99";
+        margin=15;
+        
+        nlp [label="Large Language Model\nProcessing", fillcolor="#CCEECC", penwidth=2.0, color="#006600"];
+        vectorization [label="SentenceTransformer\nVectorization", fillcolor="#CCEECC", penwidth=2.0, color="#006600"];
+        validation [label="AI-Powered\nReannotation", fillcolor="#CCEECC", penwidth=2.0, color="#006600"];
+        
+        {rank=same; nlp; vectorization; validation}
+    }
+    
+    // Data Storage Layer (Bottom Layer)
+    subgraph cluster_storage {
+        label="Data Storage Layer";
+        fontsize=16;
+        style="filled";
+        fillcolor="#EEEEFF";
+        color="#9999FF";
+        margin=15;
+        
+        sql [label="SQLite\nRelational Database", fillcolor="#CCDDFF"];
+        lance [label="LanceDB\nVector Database", fillcolor="#CCDDFF"];
+        file [label="AI Prompt Configuration\n(Enhanced Annotations)", fillcolor="#CCDDFF"];
+        
+        {rank=same; sql; lance; file}
+    }
+    
+    // Inter-layer connections - UI to API
+    search_ui -> mcp_server [weight=3];
+    browse_ui -> mcp_server [weight=2];
+    qa_ui -> mcp_server [weight=2];
+    visual_ui -> api_tools [weight=3];
+    
+    // API to Retrieval
+    mcp_server -> query_proc [lhead=cluster_retrieval, weight=2];
+    api_tools -> vector_search [weight=2];
+    
+    // Retrieval to Processing
+    query_proc -> vectorization [weight=2];
+    vector_search -> filter [weight=1];
+    
+    // Retrieval to Storage
+    vector_search -> lance [weight=2];
+    filter -> sql [weight=2];
+    
+    // Processing to Storage - Emphasize the three main processing steps
+    nlp -> sql [weight=2, penwidth=1.5, color="#006600"];
+    vectorization -> lance [weight=2, penwidth=1.5, color="#006600"];
+    validation -> file [weight=2, penwidth=1.5, color="#006600"];
+    
+    // API direct access to storage
+    mcp_server -> sql [style=dashed, constraint=false, weight=1];
+    api_tools -> lance [style=dashed, constraint=false, weight=1];
+    
+    // Label the entire diagram
+    label = "SynVectorDB Integrated System Architecture";
+    fontsize = 20;
+    labelloc = "t";
+} 

@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# Title: Semantic Search
+
 import os
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
 
@@ -15,19 +18,29 @@ import sqlite3
 sys.path.append(str(Path(__file__).parent.parent))
 
 # 从utils导入共享功能
-from utils import get_embeddings_data, get_connection
+from utils import get_connection
 
 # 从data目录导入搜索功能
-from data.search_v2 import SemanticSearch
+# 使用utils中的全局缓存函数
+from utils import get_semantic_search_instance
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize semantic search
+# 使用全局缓存的SemanticSearch实例
 @st.cache_resource
 def get_searcher():
-    return SemanticSearch()
+    """
+    获取全局缓存的SemanticSearch实例
+    """
+    try:
+        logger.info("Getting cached SemanticSearch instance")
+        return get_semantic_search_instance()
+    except Exception as e:
+        st.error(f"Error initializing search: {str(e)}")
+        logger.error(f"Error initializing search: {str(e)}", exc_info=True)
+        raise
 
 def display_search_results(results):
     """Display search results in a formatted way"""
@@ -66,6 +79,51 @@ def display_search_results(results):
                 st.markdown(result['description'])
 
 def main():
+    # 设置页面配置，自定义侧边栏显示的名称
+    st.set_page_config(
+        page_title="Semantic Search",
+        page_icon="🔍",
+        layout="wide"
+    )
+    
+    # 添加强制使用浅色主题的CSS样式
+    st.markdown("""
+    <style>
+    /* 强制使用浅色主题，覆盖Streamlit的默认主题切换 */
+    html, body, [class*="css"] {
+        color: #262730 !important;
+        background-color: #FFFFFF !important;
+    }
+    
+    /* 固定浅色主题 */
+    .stApp {
+        background-color: #FFFFFF !important;
+    }
+    
+    /* 确保所有文本使用深色 */
+    .stMarkdown, p, h1, h2, h3, h4, h5, h6, span, div {
+        color: #262730 !important;
+    }
+    
+    /* 确保所有卡片使用浅色背景 */
+    .stTabs [data-baseweb="tab-panel"], div.stBlock {
+        background-color: #F0F2F6 !important;
+    }
+    
+    /* 确保侧边栏使用浅色背景 */
+    .css-1d391kg, .css-1lcbmhc, .css-12oz5g7 {
+        background-color: #F0F2F6 !important;
+    }
+    
+    /* 确保按钮和输入框使用浅色主题 */
+    .stButton>button, .stTextInput>div>div>input, .stSelectbox>div>div>div {
+        background-color: #FFFFFF !important;
+        color: #262730 !important;
+        border-color: #CCC !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     st.title("Semantic Search")
     st.markdown("""
     This page provides semantic search functionality for biological parts using advanced language models.
@@ -107,6 +165,11 @@ def main():
     
     if submitted and query:
         with st.spinner("Searching..."):
+            # 添加一个随机参数，确保每次查询都是唯一的，防止Streamlit缓存结果
+            query_time = time.time()
+            search_id = f"{query}_{query_time}"
+            st.session_state['last_search_id'] = search_id
+            
             start_time = time.time()
             results = searcher.search(
                 query=query,
@@ -115,7 +178,12 @@ def main():
                 types=types if types else None,
                 source_collections=source_collections if source_collections else None
             )
-            st.success(f"Search completed in {time.time() - start_time:.2f} seconds")
+            
+            # 将结果存储在session_state中
+            st.session_state['last_results'] = results
+            st.session_state['search_time'] = time.time() - start_time
+            
+            st.success(f"Search completed in {st.session_state['search_time']:.2f} seconds")
             display_search_results(results)
     
     # 添加使用说明

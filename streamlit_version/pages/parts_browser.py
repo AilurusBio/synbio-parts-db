@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# Title: Parts Browser
+
 import sys
 from pathlib import Path
 import streamlit as st
@@ -247,6 +250,13 @@ def export_to_json(parts):
     return json.dumps(parts, indent=2)
 
 def main():
+    # 设置页面配置，自定义侧边栏显示的名称
+    st.set_page_config(
+        page_title="Parts Browser",
+        page_icon="🧪",
+        layout="wide"
+    )
+    
     st.title("Sequence Search")
     
     # Create left-right two-column layout

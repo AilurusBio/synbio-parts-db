@@ -1,3 +1,6 @@
+# -*- coding: utf-8 -*-
+# Title: MCP Server
+
 import os
 from dotenv import load_dotenv
 os.environ["TRANSFORMERS_OFFLINE"] = "1"
@@ -22,10 +25,11 @@ import logging
 sys.path.append(str(Path(__file__).parent.parent))
 
 # 从utils导入共享功能
-from utils import get_connection, get_embeddings_data
+from utils import get_connection
 
 # 从data目录导入搜索功能
-from data.search_v2 import SemanticSearch
+# 使用utils中的全局缓存函数
+from utils import get_semantic_search_instance
 
 # Load environment variables
 load_dotenv()
@@ -37,10 +41,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Initialize semantic search
+# 使用全局缓存的SemanticSearch实例
 @st.cache_resource
 def get_searcher():
-    return SemanticSearch()
+    """
+    获取全局缓存的SemanticSearch实例
+    """
+    logger.info("Getting cached SemanticSearch instance")
+    return get_semantic_search_instance()
 
 # Define data models
 class Tool(BaseModel):
@@ -494,6 +502,51 @@ mcp_server = MCPServer()
 app = mcp_server.app
 
 def main():
+    # 设置页面配置，自定义侧边栏显示的名称
+    st.set_page_config(
+        page_title="MCP Server",
+        page_icon="💻",
+        layout="wide"
+    )
+    
+    # 添加强制使用浅色主题的CSS样式
+    st.markdown("""
+    <style>
+    /* 强制使用浅色主题，覆盖Streamlit的默认主题切换 */
+    html, body, [class*="css"] {
+        color: #262730 !important;
+        background-color: #FFFFFF !important;
+    }
+    
+    /* 固定浅色主题 */
+    .stApp {
+        background-color: #FFFFFF !important;
+    }
+    
+    /* 确保所有文本使用深色 */
+    .stMarkdown, p, h1, h2, h3, h4, h5, h6, span, div {
+        color: #262730 !important;
+    }
+    
+    /* 确保所有卡片使用浅色背景 */
+    .stTabs [data-baseweb="tab-panel"], div.stBlock {
+        background-color: #F0F2F6 !important;
+    }
+    
+    /* 确保侧边栏使用浅色背景 */
+    .css-1d391kg, .css-1lcbmhc, .css-12oz5g7 {
+        background-color: #F0F2F6 !important;
+    }
+    
+    /* 确保按钮和输入框使用浅色主题 */
+    .stButton>button, .stTextInput>div>div>input, .stSelectbox>div>div>div {
+        background-color: #FFFFFF !important;
+        color: #262730 !important;
+        border-color: #CCC !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
     st.title("MCP Server API Documentation")
     
     # Start FastAPI server in a separate thread

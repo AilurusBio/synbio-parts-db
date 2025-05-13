@@ -16,7 +16,7 @@ import pickle
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pages.mcp_server import MCPServer
-from utils import init_embeddings, get_embeddings_data, get_connection
+from utils import get_connection, get_semantic_search_instance
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -42,13 +42,86 @@ app.mount("/api/mcp", mcp_server.app)
 
 # Page configuration
 st.set_page_config(
-    page_title="Synthetic Biology Parts Database",
+    page_title="SynVectorDB: Embedding-Based Retrieval System for Synthetic Biology Parts",
     page_icon="🧬",
     layout="wide"
 )
 
 def main():
-    st.title("Synthetic Biology Parts Database")
+    # 添加全局CSS样式，确保使用固定的浅色主题
+    st.markdown("""
+    <style>
+    /* 强制使用浅色主题，覆盖Streamlit的默认主题切换 */
+    :root {
+        --background-color: #FFFFFF !important;
+        --text-color: #262730 !important;
+        --secondary-background-color: #F0F2F6 !important;
+    }
+    
+    /* 覆盖所有可能的主题选择器 */
+    html, body, [class*="css"], [data-testid="stAppViewContainer"], [data-testid="stSidebar"], 
+    [data-testid="stHeader"], [data-testid="stToolbar"], [data-testid="stDecoration"],
+    [data-testid="baseButton-headerNoPadding"], [data-testid="stWidgetLabel"] {
+        color: var(--text-color) !important;
+        background-color: var(--background-color) !important;
+    }
+    
+    /* 固定浅色主题 - 主应用容器 */
+    .stApp, .main, .block-container, [data-testid="stAppViewBlockContainer"] {
+        background-color: var(--background-color) !important;
+    }
+    
+    /* 确保所有文本使用深色 */
+    .stMarkdown, p, h1, h2, h3, h4, h5, h6, span, div, label, .stTextInput>label {
+        color: var(--text-color) !important;
+    }
+    
+    /* 确保所有卡片使用浅色背景 */
+    .stTabs [data-baseweb="tab-panel"], div.stBlock, .element-container {
+        background-color: var(--background-color) !important;
+    }
+    
+    /* 确保侧边栏使用浅色背景 */
+    .css-1d391kg, .css-1lcbmhc, .css-12oz5g7, .sidebar-content, [data-testid="stSidebarNav"] {
+        background-color: var(--secondary-background-color) !important;
+    }
+    
+    /* 确保按钮和输入框使用浅色主题 */
+    .stButton>button, .stTextInput>div>div>input, .stSelectbox>div>div>div, 
+    [data-baseweb="select"], [data-baseweb="input"], [data-baseweb="textarea"] {
+        background-color: var(--background-color) !important;
+        color: var(--text-color) !important;
+        border-color: #CCC !important;
+    }
+    
+    /* 强制覆盖任何可能的黑暗模式设置 */
+    [data-theme="dark"], [data-theme="light"] {
+        --background-color: #FFFFFF !important;
+        --text-color: #262730 !important;
+        --secondary-background-color: #F0F2F6 !important;
+    }
+    </style>
+    """, unsafe_allow_html=True)
+    
+    st.title("SynVectorDB: Embedding-Based Retrieval System for Synthetic Biology Parts")
+    
+    # 添加系统架构图
+    col1, col2, col3 = st.columns([1, 3, 1])
+    with col2:
+        st.image("simplified_architecture_en.png", use_column_width=True)
+    
+    # 添加架构介绍文字
+    st.markdown("""
+    ### System Architecture
+    
+    SynVectorDB is built on a multi-layered architecture designed for efficient retrieval and analysis of synthetic biology parts. 
+    The system integrates a User Interface Layer powered by Streamlit, providing intuitive access to semantic search, categorized browsing, 
+    professional Q&A, and data visualization features. The API Layer serves as the bridge between the frontend and backend services, 
+    handling requests and responses through FastAPI endpoints. The Core Services Layer implements the semantic search functionality using 
+    sentence transformers for embedding generation and vector similarity search. The Data Storage Layer combines LanceDB for vector embeddings 
+    and SQLite for structured data, enabling fast and accurate retrieval of biological parts information. This architecture ensures 
+    scalability, maintainability, and optimal performance for synthetic biology research and design applications.
+    """)
     
     try:
         # Get statistics
@@ -138,7 +211,15 @@ def main():
         
         # Footer
         st.markdown("---")
-        st.markdown("📧 Contact Us: example@example.com")
+        
+        st.markdown("### 📧 Contact Us")
+        st.markdown("jiesong@whu.edu.cn")
+        
+        st.markdown("### 📥 Complete Data Download")
+        st.markdown("[Download Database](https://github.com/AilurusBio/synbio-parts-db/blob/main/streamlit_version/data/parts.db)")
+        
+        st.markdown("### 🔗 Project Repository")
+        st.markdown("[GitHub Repository](https://github.com/AilurusBio/synbio-parts-db/)")
         
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
@@ -150,13 +231,22 @@ def get_app():
 
 @st.cache_resource
 def get_embeddings_data():
+    """
+    获取嵌入向量数据，使用全局缓存的SemanticSearch实例
+    """
     try:
-        index_path = Path("streamlit_version/data/search_index.pkl")
-        if index_path.exists():
-            with open(index_path, 'rb') as f:
-                return pickle.load(f)
-        return init_embeddings()
+        # 使用全局缓存的SemanticSearch实例
+        searcher = get_semantic_search_instance()
+        
+        # 构建数据结构
+        data = {
+            'table': searcher.table,
+            'model': searcher.model
+        }
+        
+        return data
     except Exception as e:
+        logger.error(f"Failed to load vector data: {str(e)}", exc_info=True)
         st.error(f"Failed to load vector data: {str(e)}")
         return None
 
@@ -445,12 +535,12 @@ def get_validation_stats():
             cursor = conn.cursor()
             cursor.execute("""
                 SELECT 
-                    metadata_validation_state,
+                    source_validation_status,
                     COUNT(*) as count,
                     COUNT(DISTINCT type_level_1) as type_count
                 FROM parts 
-                WHERE metadata_validation_state IS NOT NULL
-                GROUP BY metadata_validation_state
+                WHERE source_validation_status IS NOT NULL
+                GROUP BY source_validation_status
             """)
             return [
                 {

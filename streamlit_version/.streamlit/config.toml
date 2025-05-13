@@ -1,0 +1,22 @@
+[theme]
+base="light"
+disableThemeSwitch=true
+primaryColor="#1E88E5"
+backgroundColor="#FFFFFF"
+secondaryBackgroundColor="#F0F2F6"
+textColor="#262730"
+font="sans serif"
+
+[ui]
+theme="light"
+themeMode="light"
+
+[client]
+themeMode="light"
+theme="light"
+
+[server]
+enableXsrfProtection=false
+
+[browser]
+gatherUsageStats = false
