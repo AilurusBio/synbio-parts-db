@@ -141,15 +141,16 @@ start_application() {
 
 # Main setup function
 main() {
-    echo "🧬 SynVectorDB githubshare - Setup & Launch"
-    echo "=========================================="
+    echo "🧬 SynVectorDB Local Deployment - Setup & Launch"
+    echo "=================================================="
     echo "This script will:"
     echo "1. Check system requirements"
     echo "2. Install Python dependencies" 
-    echo "3. Download required data files"
-    echo "4. Download AI models (if needed)"
-    echo "5. Start the application"
-    echo "=========================================="
+    echo "3. Download core database files (~95MB)"
+    echo "4. Download optional data files (~55MB)"
+    echo "5. Download AI models on first use (~400MB)"
+    echo "6. Start the application"
+    echo "=================================================="
     
     check_requirements
     setup_directories

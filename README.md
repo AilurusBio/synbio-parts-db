@@ -93,13 +93,18 @@ synbio-parts-db/
 ### System Requirements
 - **Python**: 3.8 or higher
 - **Memory**: 2GB+ RAM recommended for AI features
-- **Storage**: 200MB+ free space for data and models
-- **Network**: Internet connection required for initial setup
+- **Storage**: 600MB+ free space (150MB data + 400MB AI models + workspace)
+- **Network**: Stable internet connection required for initial setup and data download
 
 ### Data Sources
-- Database files are automatically downloaded from Cloudflare R2 storage
-- AI models are downloaded on first use (may take 2-3 minutes)
-- Total download size: ~100MB for data + ~400MB for AI models
+- **Core Database Files**: Automatically downloaded from Cloudflare R2 storage
+  - `parts.duckdb` (~50MB): Complete database with embeddings and AI classifications
+  - `parts.db` (~45MB): SQLite version for compatibility
+- **Optional Data Files**: Additional formats for advanced use cases
+  - `parts.fasta` (~25MB): DNA sequences in FASTA format
+  - `sbol_ndjson.jsonl` (~30MB): SBOL3-compliant data in JSON format
+- **AI Models**: Downloaded on first use (may take 2-3 minutes)
+- **Total Download Size**: ~150MB for all data + ~400MB for AI models
 
 ### Performance Considerations
 - **First Startup**: May take 3-5 minutes due to AI model loading
