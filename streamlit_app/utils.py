@@ -1,6 +1,6 @@
 """
-SynVectorDB githubshare - 简化工具函数
-重构版本，移除复杂依赖，专注核心功能
+SynVectorDB Local Deployment - Simplified Utility Functions
+Refactored version with removed complex dependencies, focused on core functionality
 """
 
 import sqlite3
@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 from contextlib import contextmanager
 
-# 配置日志
+# Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
@@ -48,18 +48,18 @@ def get_db_connection():
                         test_result = conn.execute("SELECT COUNT(*) FROM parts LIMIT 1").fetchone()
                         if test_result and test_result[0] > 0:
                             db_type = "DuckDB"
-                            logger.info(f"DuckDB连接成功: {path} ({test_result[0]} parts)")
+                            logger.info(f"DuckDB connection successful: {path} ({test_result[0]} parts)")
                             yield conn
                             return
                         else:
-                            logger.warning(f"DuckDB数据库为空或无效: {path}")
+                            logger.warning(f"DuckDB database empty or invalid: {path}")
                             conn.close()
                             continue
                     except Exception as e:
-                        logger.warning(f"DuckDB连接失败 {path}: {e}")
+                        logger.warning(f"DuckDB connection failed {path}: {e}")
                         # Check if it's a path-related error (Windows paths on Linux)
                         if "No files found that match the pattern" in str(e) or "/mnt/" in str(e):
-                            logger.error(f"检测到跨平台路径问题，DuckDB文件包含Windows路径: {e}")
+                            logger.error(f"Cross-platform path issue detected, DuckDB file contains Windows paths: {e}")
                         try:
                             conn.close()
                         except:
@@ -82,15 +82,15 @@ def get_db_connection():
                     test_result = cursor.execute("SELECT COUNT(*) FROM parts").fetchone()
                     if test_result and test_result[0] > 0:
                         db_type = "SQLite"
-                        logger.info(f"SQLite连接成功: {path} ({test_result[0]} parts)")
+                        logger.info(f"SQLite connection successful: {path} ({test_result[0]} parts)")
                         yield conn
                         return
                     else:
-                        logger.warning(f"SQLite数据库为空或无效: {path}")
+                        logger.warning(f"SQLite database empty or invalid: {path}")
                         conn.close()
                         continue
                 except Exception as e:
-                    logger.warning(f"SQLite连接失败 {path}: {e}")
+                    logger.warning(f"SQLite connection failed {path}: {e}")
                     try:
                         conn.close()
                     except:
@@ -99,11 +99,11 @@ def get_db_connection():
         
         # No database found
         all_paths = (duckdb_paths if DUCKDB_AVAILABLE else []) + sqlite_paths
-        logger.error(f"未找到可用数据库文件: {all_paths}")
+        logger.error(f"No available database files found: {all_paths}")
         yield None
         
     except Exception as e:
-        logger.error(f"数据库连接失败: {e}")
+        logger.error(f"Database connection failed: {e}")
         yield None
     finally:
         if conn:
@@ -113,16 +113,16 @@ def get_db_connection():
                 pass
 
 def get_basic_stats():
-    """获取基础统计信息"""
+    """Get basic database statistics"""
     try:
         with get_db_connection() as conn:
             if conn is None:
-                return {"error": "数据库连接失败"}
+                return {"error": "Database connection failed"}
             
-            # 基础统计
+            # Basic statistics
             total_parts = conn.execute("SELECT COUNT(*) FROM parts").fetchone()[0]
             
-            # 类型统计
+            # Type statistics
             type_stats = conn.execute("""
                 SELECT type_level_1, COUNT(*) as count 
                 FROM parts 
@@ -131,7 +131,7 @@ def get_basic_stats():
                 ORDER BY count DESC
             """).fetchall()
             
-            # 来源统计
+            # Source statistics
             source_stats = conn.execute("""
                 SELECT source_collection, COUNT(*) as count 
                 FROM parts 
@@ -147,11 +147,11 @@ def get_basic_stats():
                 "status": "success"
             }
     except Exception as e:
-        logger.error(f"获取统计信息失败: {e}")
+        logger.error(f"Failed to get statistics: {e}")
         return {"error": str(e)}
 
 def get_parts_sample(limit=10):
-    """获取部件样本数据"""
+    """Get sample parts data"""
     try:
         with get_db_connection() as conn:
             if conn is None:
@@ -169,11 +169,11 @@ def get_parts_sample(limit=10):
             df = pd.read_sql_query(query, conn, params=[limit])
             return df.to_dict('records')
     except Exception as e:
-        logger.error(f"获取部件样本失败: {e}")
+        logger.error(f"Failed to get parts sample: {e}")
         return []
 
 def search_parts(query="", type_filter="", source_filter="", limit=20):
-    """简化的部件搜索"""
+    """Simplified parts search"""
     try:
         with get_db_connection() as conn:
             if conn is None:
@@ -205,11 +205,11 @@ def search_parts(query="", type_filter="", source_filter="", limit=20):
             df = pd.read_sql_query(sql, conn, params=params)
             return df.to_dict('records')
     except Exception as e:
-        logger.error(f"搜索部件失败: {e}")
+        logger.error(f"Parts search failed: {e}")
         return []
 
 def get_database_info():
-    """获取数据库类型和状态信息"""
+    """Get database type and status information"""
     info = {
         "duckdb_available": DUCKDB_AVAILABLE,
         "database_type": None,
@@ -268,18 +268,18 @@ def get_database_info():
     return info
 
 def test_database():
-    """测试数据库连接和基础功能"""
+    """Test database connection and basic functionality"""
     try:
         db_info = get_database_info()
         
         if db_info["connection_status"] == "functional":
             parts_count = db_info.get("parts_count", 0)
             db_type = db_info.get("database_type", "Unknown")
-            return True, f"数据库正常 ({db_type})，共{parts_count}个部件"
+            return True, f"Database functional ({db_type}), {parts_count:,} parts available"
         elif db_info["connection_status"] == "connected":
-            return False, "数据库连接成功但无法查询数据"
+            return False, "Database connected but unable to query data"
         else:
-            return False, f"数据库连接失败: {db_info['connection_status']}"
+            return False, f"Database connection failed: {db_info['connection_status']}"
             
     except Exception as e:
         return False, str(e)

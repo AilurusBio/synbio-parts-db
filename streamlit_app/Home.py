@@ -53,10 +53,10 @@ def main():
     
     # Check for cross-platform issues
     if db_info.get("cross_platform_issue"):
-        st.error("🚨 **跨平台兼容性问题检测**")
-        st.error("DuckDB数据库文件包含硬编码的Windows/WSL绝对路径，无法在当前系统上使用。")
-        st.info("💡 **自动解决方案**: 系统已自动切换到SQLite数据库，功能完全等价。")
-        st.info("🔧 **手动修复**: 运行 `python3 scripts/download_data.py` 重新检测和处理数据库文件。")
+        st.error("🚨 **Cross-Platform Compatibility Issue Detected**")
+        st.error("DuckDB database file contains hardcoded Windows/WSL absolute paths and cannot be used on the current system.")
+        st.info("💡 **Automatic Resolution**: System has automatically switched to SQLite database with equivalent functionality.")
+        st.info("🔧 **Manual Fix**: Run `python3 scripts/download_data.py` to re-detect and handle database files.")
     
     if not db_ok:
         st.stop()
