@@ -98,3 +98,6 @@ htmlcov/
 .mypy_cache/
 .dmypy.json
 dmypy.json
+
+# Archive folder (non-essential files)
+archive/

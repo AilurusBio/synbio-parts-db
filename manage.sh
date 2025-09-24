@@ -71,8 +71,8 @@ start() {
     fi
     
     # Check data files
-    if [ ! -f "../data/parts.duckdb" ]; then
-        error "Database file not found: ../data/parts.duckdb"
+    if [ ! -f "$SCRIPT_DIR/data/parts.duckdb" ]; then
+        error "Database file not found: $SCRIPT_DIR/data/parts.duckdb"
         return 1
     fi
     
@@ -187,54 +187,54 @@ test() {
     fi
     
     # Test database connection
-    log "测试数据库连接..."
+    log "Testing database connection..."
     cd "$APP_DIR"
     if python3 -c "
 import duckdb
-conn = duckdb.connect('../data/parts.duckdb')
+conn = duckdb.connect('$SCRIPT_DIR/data/parts.duckdb')
 count = conn.execute('SELECT COUNT(*) FROM parts').fetchone()[0]
-print(f'数据库连接成功，共 {count} 个部件')
+print(f'Database connected successfully, {count} parts found')
 conn.close()
 " 2>/dev/null; then
-        success "✅ 数据库连接正常"
+        success "✅ Database connection normal"
     else
-        error "❌ 数据库连接异常"
+        error "❌ Database connection abnormal"
     fi
 }
 
-# 清理日志
+# Clean logs
 clean() {
-    log "🧹 清理日志文件..."
+    log "🧹 Cleaning log files..."
     > "$LOG_FILE"
     > "$ERROR_LOG"
-    success "日志文件已清理"
+    success "Log files cleaned"
 }
 
-# 显示帮助
+# Show help
 help() {
-    echo "SynVectorDB 管理脚本"
+    echo "SynVectorDB Management Script"
     echo ""
-    echo "用法: $0 {start|stop|restart|status|logs|tail|test|clean|help}"
+    echo "Usage: $0 {start|stop|restart|status|logs|tail|test|clean|help}"
     echo ""
-    echo "命令:"
-    echo "  start     启动服务"
-    echo "  stop      停止服务"
-    echo "  restart   重启服务"
-    echo "  status    查看状态"
-    echo "  logs [n]  查看最近n行日志 (默认50行)"
-    echo "  tail      实时查看日志"
-    echo "  test      测试服务"
-    echo "  clean     清理日志"
-    echo "  help      显示帮助"
+    echo "Commands:"
+    echo "  start     Start service"
+    echo "  stop      Stop service"
+    echo "  restart   Restart service"
+    echo "  status    Check status"
+    echo "  logs [n]  View last n lines of logs (default 50)"
+    echo "  tail      Real-time log viewing"
+    echo "  test      Test service"
+    echo "  clean     Clean log files"
+    echo "  help      Show help"
     echo ""
-    echo "服务信息:"
-    echo "  前端地址: http://localhost:8501"
-    echo "  日志文件: $LOG_FILE"
-    echo "  错误日志: $ERROR_LOG"
-    echo "  PID文件:  $PID_FILE"
+    echo "Service Info:"
+    echo "  Frontend URL: http://localhost:8501"
+    echo "  Log file: $LOG_FILE"
+    echo "  Error log: $ERROR_LOG"
+    echo "  PID file:  $PID_FILE"
 }
 
-# 主函数
+# Main function
 case "${1:-help}" in
     start)
         start
