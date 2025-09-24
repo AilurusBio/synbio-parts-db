@@ -115,6 +115,31 @@ def download_optional_data(data_dir: Path) -> int:
     
     return success_count
 
+def test_duckdb_compatibility(filepath: Path) -> bool:
+    """Test if DuckDB file has cross-platform compatibility issues"""
+    if not filepath.exists():
+        return True  # File doesn't exist, no compatibility issue
+    
+    try:
+        import duckdb
+        conn = duckdb.connect(str(filepath), read_only=True)
+        # Try to query the database
+        result = conn.execute("SELECT COUNT(*) FROM parts LIMIT 1").fetchone()
+        conn.close()
+        return result is not None and result[0] > 0
+    except Exception as e:
+        error_msg = str(e)
+        if "No files found that match the pattern" in error_msg or "/mnt/" in error_msg:
+            print(f"⚠️  DuckDB compatibility issue detected: {filepath.name}")
+            print(f"   🚨 Error: {error_msg}")
+            print(f"   💡 This file contains hardcoded Windows/WSL paths")
+            return False
+        else:
+            print(f"⚠️  DuckDB test failed: {error_msg}")
+            return False
+    except ImportError:
+        return True  # DuckDB not available, skip test
+
 def main():
     """Main download function"""
     print("SynVectorDB Local Deployment - Data Download Script")
@@ -136,12 +161,38 @@ def main():
         # Skip if file already exists and is valid
         if filepath.exists() and verify_file(filepath):
             print(f"⏭️  Skipping {filename} (already exists)")
+            
+            # Test DuckDB compatibility
+            if filename.endswith('.duckdb'):
+                if not test_duckdb_compatibility(filepath):
+                    print(f"🚨 Cross-platform issue detected in {filename}")
+                    print(f"   💡 Renaming problematic file to {filename}.incompatible")
+                    try:
+                        filepath.rename(filepath.with_suffix('.duckdb.incompatible'))
+                        print(f"   ✅ Application will use SQLite fallback")
+                        success_count += 1  # Still count as success since SQLite works
+                        continue
+                    except Exception as e:
+                        print(f"   ❌ Failed to rename file: {e}")
+                        continue
+            
             success_count += 1
             continue
         
         # Download the file
         if download_file(config["url"], filepath, config["description"]):
             if verify_file(filepath):
+                # Test DuckDB compatibility after download
+                if filename.endswith('.duckdb'):
+                    if not test_duckdb_compatibility(filepath):
+                        print(f"🚨 Downloaded DuckDB file has cross-platform issues")
+                        print(f"   💡 Renaming to {filename}.incompatible")
+                        try:
+                            filepath.rename(filepath.with_suffix('.duckdb.incompatible'))
+                            print(f"   ✅ Application will use SQLite fallback")
+                        except Exception as e:
+                            print(f"   ❌ Failed to rename file: {e}")
+                
                 success_count += 1
             else:
                 print(f"❌ Verification failed for {filename}")
@@ -155,16 +206,21 @@ def main():
     print(f"📊 Core Database Files: {success_count}/{total_count} successful")
     print(f"📦 Optional Data Files: {optional_success}/{len(OPTIONAL_DATA_SOURCES)} successful")
     
-    if success_count == total_count:
-        print("🎉 All core data files downloaded successfully!")
-        if optional_success > 0:
-            print(f"✨ {optional_success} optional files also downloaded for enhanced features!")
+    # Check if we have any working database
+    sqlite_file = data_dir / "parts.db"
+    duckdb_file = data_dir / "parts.duckdb"
+    
+    if sqlite_file.exists() or duckdb_file.exists():
+        print("🎉 Database files available!")
+        if not duckdb_file.exists() and (data_dir / "parts.duckdb.incompatible").exists():
+            print("ℹ️  Note: DuckDB file was renamed due to cross-platform issues")
+            print("   📊 Application will use SQLite database (fully functional)")
         return True
     elif success_count > 0:
-        print("⚠️  Some core downloads failed, but application can run with available data.")
+        print("⚠️  Some downloads succeeded, checking database availability...")
         return True
     else:
-        print("❌ No core data files available. Application may not work properly.")
+        print("❌ No database files available. Application may not work properly.")
         return False
 
 if __name__ == "__main__":

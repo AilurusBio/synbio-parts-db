@@ -152,12 +152,14 @@ synbio-parts-db/
 5. **Cross-platform database issues** (Critical)
    ```bash
    # If you see "No files found that match the pattern" errors:
-   rm data/parts.duckdb  # Remove problematic DuckDB file
-   # Application will automatically use SQLite fallback
+   python3 scripts/download_data.py  # Re-run download script
+   # Script will automatically detect and handle incompatible DuckDB files
    ```
-   - **Cause**: DuckDB file contains Windows-specific paths
-   - **Solution**: Use SQLite database (fully functional)
-   - **Status**: Application will display cross-platform warning
+   - **Root Cause**: DuckDB file contains hardcoded Windows/WSL absolute paths (e.g., `/mnt/d/...`)
+   - **Auto-Detection**: Download script automatically tests DuckDB compatibility
+   - **Auto-Resolution**: Incompatible files are renamed to `.incompatible` extension
+   - **Fallback**: Application seamlessly uses SQLite database (100% functional)
+   - **User Impact**: No functionality loss, just different database backend
 
 6. **System dependencies missing**
    ```bash

@@ -34,7 +34,9 @@ def test_database_compatibility():
     # Check for cross-platform issues
     if db_info.get('cross_platform_issue'):
         print("   🚨 Cross-platform issue detected!")
-        print("   ⚠️  DuckDB file contains Windows paths, using SQLite fallback")
+        print("   ⚠️  DuckDB file contains hardcoded Windows/WSL paths")
+        print("   💡 Solution: Run 'python3 scripts/download_data.py' to auto-fix")
+        print("   📊 Current status: Using SQLite fallback (fully functional)")
     
     if 'parts_count' in db_info:
         print(f"   📊 Parts Count: {db_info['parts_count']:,}")
@@ -101,6 +103,13 @@ def test_database_compatibility():
             print(f"   🗃️ SQLite file: {size_mb:.1f}MB")
         else:
             print("   ⚠️  SQLite file not found")
+        
+        # Check for incompatible DuckDB files
+        incompatible_file = data_dir / "parts.duckdb.incompatible"
+        if incompatible_file.exists():
+            size_mb = incompatible_file.stat().st_size / 1024 / 1024
+            print(f"   🚨 Incompatible DuckDB file: {size_mb:.1f}MB (renamed)")
+            print(f"      💡 This file contains Windows/WSL paths")
     else:
         print("   ❌ Data directory not found")
         return False
