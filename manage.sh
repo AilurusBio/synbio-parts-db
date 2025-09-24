@@ -110,83 +110,83 @@ stop() {
     local pid=$(cat "$PID_FILE")
     log "Terminating process PID: $pid"
     
-    # 优雅停止
+    # Graceful stop
     kill "$pid" 2>/dev/null
     sleep 3
     
-    # 强制停止
+    # Force stop
     if ps -p "$pid" > /dev/null 2>&1; then
-        warning "强制终止进程..."
+        warning "Force terminating process..."
         kill -9 "$pid" 2>/dev/null
         sleep 2
     fi
     
     rm -f "$PID_FILE"
-    success "SynVectorDB 已停止"
+    success "SynVectorDB stopped"
 }
 
-# 重启服务
+# Restart service
 restart() {
-    log "🔄 重启 SynVectorDB 服务..."
+    log "🔄 Restarting SynVectorDB service..."
     stop
     sleep 2
     start
 }
 
-# 查看状态
+# Check status
 status() {
     if is_running; then
         local pid=$(cat "$PID_FILE")
-        success "SynVectorDB 正在运行 (PID: $pid)"
-        log "📊 前端地址: http://localhost:8501"
+        success "SynVectorDB is running (PID: $pid)"
+        log "📊 Frontend URL: http://localhost:8501"
         
-        # 测试连接
-        log "🔍 测试服务连接..."
+        # Test connection
+        log "🔍 Testing service connection..."
         if curl -s http://localhost:8501 > /dev/null; then
-            success "✅ 前端服务响应正常"
+            success "✅ Frontend service responding normally"
         else
-            error "❌ 前端服务无响应"
+            error "❌ Frontend service not responding"
         fi
     else
-        warning "SynVectorDB 未运行"
+        warning "SynVectorDB not running"
     fi
 }
 
-# 查看日志
+# View logs
 logs() {
     local lines=${1:-50}
-    log "📝 显示最近 $lines 行日志..."
-    echo "=== 应用日志 ==="
-    tail -n "$lines" "$LOG_FILE" 2>/dev/null || echo "日志文件不存在"
+    log "📝 Showing last $lines lines of logs..."
+    echo "=== Application Logs ===
+    tail -n "$lines" "$LOG_FILE" 2>/dev/null || echo "Log file not found"
     echo ""
-    echo "=== 错误日志 ==="
-    tail -n "$lines" "$ERROR_LOG" 2>/dev/null || echo "错误日志文件不存在"
+    echo "=== Error Logs ==="
+    tail -n "$lines" "$ERROR_LOG" 2>/dev/null || echo "Error log file not found"
 }
 
-# 实时日志
+# Real-time logs
 tail_logs() {
-    log "📝 实时查看日志 (Ctrl+C 退出)..."
+    log "📝 Real-time log viewing (Ctrl+C to exit)..."
     tail -f "$LOG_FILE" "$ERROR_LOG" 2>/dev/null
 }
 
-# 测试服务
+# Test service
 test() {
-    log "🧪 测试 SynVectorDB 服务..."
+    log "🧪 Testing SynVectorDB service..."
     
     if ! is_running; then
-        error "服务未运行，请先启动服务"
+        error "Service not running, please start service first"
         return 1
     fi
     
-    # 测试前端
-    log "测试前端服务..."
+    # Test frontend
+    log "Testing frontend service..."
     if curl -s http://localhost:8501 > /dev/null; then
-        success "✅ 前端服务正常"
+        success "✅ Frontend service normal"
     else
-        error "❌ 前端服务异常"
+        error "❌ Frontend service abnormal"
     fi
     
-    # 测试数据库连接
+    # Test database connection
     log "测试数据库连接..."
     cd "$APP_DIR"
     if python3 -c "
