@@ -45,13 +45,13 @@ def main():
         with col1:
             type_filter = st.selectbox(
                 "Part Type:",
-                ["", "Promoter", "Gene", "Terminator", "Device", "Other"]
+                ["", "Coding Sequences", "DNA Elements", "RNA Elements", "Application", "other"]
             )
         
         with col2:
             source_filter = st.selectbox(
                 "Source Collection:",
-                ["", "iGEM", "SBOL", "BioBrick", "Other"]
+                ["", "addgene", "igem", "lab", "snapgene", "yunzhou"]
             )
     
     # Search button

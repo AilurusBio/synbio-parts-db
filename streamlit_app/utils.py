@@ -142,8 +142,8 @@ def get_basic_stats():
             
             return {
                 "total_parts": total_parts,
-                "type_stats": type_stats,
-                "source_stats": source_stats,
+                "type_stats": dict(type_stats),
+                "source_stats": dict(source_stats),
                 "status": "success"
             }
     except Exception as e:
