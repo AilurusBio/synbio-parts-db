@@ -70,9 +70,9 @@ setup_directories() {
 install_dependencies() {
     log "Installing Python dependencies..."
     
-    if [ -f "$SCRIPT_DIR/requirements_enhanced.txt" ]; then
-        pip3 install -r "$SCRIPT_DIR/requirements_enhanced.txt"
-        log "✅ Enhanced dependencies installed"
+    if [ -f "$SCRIPT_DIR/streamlit_app/requirements.txt" ]; then
+        pip3 install -r "$SCRIPT_DIR/streamlit_app/requirements.txt"
+        log "✅ Dependencies installed (including AI semantic search)"
     elif [ -f "$SCRIPT_DIR/requirements.txt" ]; then
         pip3 install -r "$SCRIPT_DIR/requirements.txt"
         log "✅ Basic dependencies installed"

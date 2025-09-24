@@ -33,7 +33,7 @@ cd synbio-parts-db
 ### Manual Setup
 ```bash
 # Install dependencies
-pip install -r requirements_enhanced.txt
+pip install -r streamlit_app/requirements.txt
 
 # Download data files
 python3 scripts/download_data.py
@@ -84,7 +84,7 @@ synbio-parts-db/
 ├── scripts/                # Setup and utility scripts
 ├── data/                   # Database files (auto-downloaded)
 ├── logs/                   # Application logs
-├── requirements_enhanced.txt # Python dependencies
+├── streamlit_app/requirements.txt # Python dependencies
 ├── setup.sh               # Automated setup script
 └── manage.sh              # Application management
 ```
@@ -133,7 +133,7 @@ synbio-parts-db/
 
 2. **Missing dependencies**
    ```bash
-   pip install -r requirements_enhanced.txt
+   pip install -r streamlit_app/requirements.txt
    ```
 
 3. **Database not found**

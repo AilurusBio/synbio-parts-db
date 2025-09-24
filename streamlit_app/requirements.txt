@@ -1,17 +1,19 @@
-# SynVectorDB 核心依赖
+# SynVectorDB Core Dependencies
 streamlit>=1.28.0
 pandas>=1.5.0
 plotly>=5.15.0
 duckdb>=0.8.0
-sqlite3  # 内置模块
+numpy>=1.24.0
 
-# 可选依赖 (如需语义搜索功能)
-# sentence-transformers>=2.2.0
-# lancedb>=0.4.0
-# torch>=1.13.0
+# AI Semantic Search Dependencies
+sentence-transformers>=2.2.0
+faiss-cpu>=1.7.0
+torch>=1.13.0
+transformers>=4.21.0
+huggingface-hub>=0.16.0
 
-# 生物信息学
+# Bioinformatics
 biopython>=1.81
 
-# 其他工具
-numpy>=1.24.0
+# Additional utilities
+scikit-learn>=1.3.0

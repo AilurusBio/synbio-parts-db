@@ -306,25 +306,38 @@ def get_all_parts_for_vectors():
             if conn is None:
                 return pd.DataFrame()
             
-            # 使用与之前一致的查询和文本组合方式
+            # 首先检查是否有预构建的embeddings表
+            try:
+                # 检查embeddings表是否存在
+                tables = conn.execute("SHOW TABLES").fetchall()
+                table_names = [table[0] for table in tables]
+                
+                if 'embeddings' in table_names:
+                    logger.info("Found pre-built embeddings table, loading vectors from DuckDB")
+                    query = """
+                        SELECT id, name, description, type_level_1, type_level_2, 
+                               source_collection, vector
+                        FROM embeddings 
+                        WHERE vector IS NOT NULL
+                        ORDER BY id
+                    """
+                    df = pd.read_sql_query(query, conn)
+                    logger.info(f"Loaded {len(df)} parts with pre-built vectors from DuckDB")
+                    return df
+                    
+            except Exception as e:
+                logger.warning(f"Could not load from embeddings table: {e}")
+            
+            # 回退到原始方法
             query = """
-                SELECT uid, name, description, type_level_1, type_level_2,
+                SELECT uid, name, description, type_level_1, type_level_2, 
                        source_collection, metadata_organism
                 FROM parts 
-                WHERE name IS NOT NULL
+                WHERE name IS NOT NULL AND description IS NOT NULL
                 ORDER BY uid
             """
             
             df = pd.read_sql_query(query, conn)
-            
-            # 按照之前的方式组合文本：name + type + description
-            def combine_text(row):
-                name = str(row['name']) if row['name'] is not None else ""
-                type_info = str(row['type_level_1']) if row['type_level_1'] is not None else ""
-                desc = str(row['description']) if row['description'] is not None else ""
-                return f"{name} {type_info} {desc}".strip()
-            
-            df['text_content'] = df.apply(combine_text, axis=1)
             
             logger.info(f"Loaded {len(df)} parts for vector computation")
             return df
@@ -351,10 +364,89 @@ def compute_embeddings(texts: List[str]) -> Optional[np.ndarray]:
         logger.error(f"计算嵌入向量失败: {e}")
         return None
 
+def save_vector_index(index, df, cache_dir):
+    """保存向量索引到文件"""
+    try:
+        import pickle
+        import json
+        
+        cache_dir = Path(cache_dir)
+        cache_dir.mkdir(exist_ok=True)
+        
+        # 保存FAISS索引
+        if FAISS_SUPPORT and index is not None:
+            import faiss
+            faiss.write_index(index, str(cache_dir / "vector_index.faiss"))
+        
+        # 保存DataFrame
+        df.to_pickle(cache_dir / "vector_data.pkl")
+        
+        # 保存元数据
+        metadata = {
+            "parts_count": len(df),
+            "created_at": str(pd.Timestamp.now()),
+            "model_name": "all-MiniLM-L6-v2"
+        }
+        with open(cache_dir / "index_metadata.json", "w") as f:
+            json.dump(metadata, f)
+        
+        logger.info(f"Vector index saved to {cache_dir}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save vector index: {e}")
+        return False
+
+def load_vector_index(cache_dir):
+    """从文件加载向量索引"""
+    try:
+        import json
+        
+        cache_dir = Path(cache_dir)
+        
+        # 检查文件是否存在
+        faiss_file = cache_dir / "vector_index.faiss"
+        data_file = cache_dir / "vector_data.pkl"
+        meta_file = cache_dir / "index_metadata.json"
+        
+        if not all([faiss_file.exists(), data_file.exists(), meta_file.exists()]):
+            return None, None
+        
+        # 加载元数据
+        with open(meta_file, "r") as f:
+            metadata = json.load(f)
+        
+        logger.info(f"Loading cached vector index: {metadata['parts_count']} parts")
+        
+        # 加载DataFrame
+        df = pd.read_pickle(data_file)
+        
+        # 加载FAISS索引
+        index = None
+        if FAISS_SUPPORT and faiss_file.exists():
+            import faiss
+            index = faiss.read_index(str(faiss_file))
+        
+        logger.info("✅ Vector index loaded from cache")
+        return index, df
+        
+    except Exception as e:
+        logger.error(f"Failed to load vector index: {e}")
+        return None, None
+
 @st.cache_resource
 def build_vector_index():
     """构建向量索引（缓存结果）"""
     global _vector_index, _vector_data
+    
+    # 尝试从文件加载缓存的索引
+    current_dir = Path(__file__).parent
+    cache_dir = current_dir / "vector_cache"
+    
+    cached_index, cached_df = load_vector_index(cache_dir)
+    if cached_index is not None and cached_df is not None:
+        _vector_index = cached_index
+        _vector_data = cached_df
+        return cached_index, cached_df
     
     if not VECTOR_SUPPORT:
         logger.warning("Vector support not available for index building")
@@ -366,16 +458,25 @@ def build_vector_index():
         logger.warning("No data available for vector index")
         return None, None
     
-    # 简化版本：直接构建索引，依赖Streamlit内置缓存
-    
-    # 构建新索引
-    logger.info("Building fresh vector index...")
-    texts = df['text_content'].tolist()
-    embeddings = compute_embeddings(texts)
-    
-    if embeddings is None:
-        logger.warning("Failed to compute embeddings")
-        return None, None
+    # 检查是否有预构建向量
+    if 'vector' in df.columns:
+        logger.info("Using pre-built vectors from DuckDB")
+        # 将向量列转换为numpy数组，确保数据类型正确
+        embeddings = np.array([list(vector) for vector in df['vector']], dtype=np.float32)
+        logger.info(f"Loaded pre-built embeddings: {embeddings.shape}")
+    else:
+        # 构建新索引
+        logger.info("Building fresh vector index...")
+        texts = []
+        for _, row in df.iterrows():
+            text = f"{row['name']} {row['description']}"
+            texts.append(text)
+        
+        embeddings = compute_embeddings(texts)
+        
+        if embeddings is None:
+            logger.warning("Failed to compute embeddings")
+            return None, None
     
     # 构建FAISS索引（如果可用）
     index = None
@@ -385,11 +486,19 @@ def build_vector_index():
             dimension = embeddings.shape[1]
             index = faiss.IndexFlatIP(dimension)  # 内积相似度
             
+            # 确保向量是连续的float32数组
+            embeddings = np.ascontiguousarray(embeddings, dtype=np.float32)
             # 标准化向量
             faiss.normalize_L2(embeddings)
-            index.add(embeddings.astype('float32'))
+            index.add(embeddings)
             
             logger.info(f"Built FAISS index with {index.ntotal} vectors")
+            
+            # 保存索引到文件以便下次快速加载
+            current_dir = Path(__file__).parent
+            cache_dir = current_dir / "vector_cache"
+            if save_vector_index(index, df, cache_dir):
+                logger.info("Vector index saved for future use")
             
             logger.info("✅ Vector index built successfully (using Streamlit cache)")
                 
@@ -434,13 +543,13 @@ def semantic_search_local(query: str, top_k: int = 10) -> List[Dict[str, Any]]:
                 if idx < len(df):
                     row = df.iloc[idx]
                     result = {
-                        'uid': row['uid'],
+                        'uid': row.get('uid', row.get('id')),  # 兼容不同的ID字段
                         'name': row['name'],
                         'description': row['description'],
                         'type_level_1': row['type_level_1'],
                         'type_level_2': row['type_level_2'],
                         'source_collection': row['source_collection'],
-                        'metadata_organism': row['metadata_organism'],
+                        'metadata_organism': row.get('metadata_organism', ''),
                         'similarity_score': float(score),
                         'rank': i + 1
                     }
