@@ -45,18 +45,17 @@ def get_embedding_model():
     global _embedding_model
     if _embedding_model is None and VECTOR_SUPPORT:
         try:
-            # 使用本地缓存的模型
-            current_dir = Path(__file__).parent
-            cache_dir = current_dir / "models"
+            # 使用本地缓存的模型 - 使用相对路径避免跨平台问题
+            cache_dir = Path("streamlit_app/models").resolve()
             model_name = "all-MiniLM-L6-v2"
             
             logger.info(f"Loading embedding model from local cache: {model_name}")
-            logger.info(f"Cache directory: {cache_dir}")
+            logger.info(f"Cache directory: models/")
             
             # 检查本地模型是否存在
             model_dir = cache_dir / f"models--sentence-transformers--{model_name}"
             if model_dir.exists():
-                logger.info(f"Found local model at: {model_dir}")
+                logger.info(f"Found local model in cache")
                 _embedding_model = SentenceTransformer(
                     model_name,
                     cache_folder=str(cache_dir),
@@ -439,8 +438,7 @@ def build_vector_index():
     global _vector_index, _vector_data
     
     # 尝试从文件加载缓存的索引
-    current_dir = Path(__file__).parent
-    cache_dir = current_dir / "vector_cache"
+    cache_dir = Path("streamlit_app/vector_cache").resolve()
     
     cached_index, cached_df = load_vector_index(cache_dir)
     if cached_index is not None and cached_df is not None:
@@ -495,8 +493,7 @@ def build_vector_index():
             logger.info(f"Built FAISS index with {index.ntotal} vectors")
             
             # 保存索引到文件以便下次快速加载
-            current_dir = Path(__file__).parent
-            cache_dir = current_dir / "vector_cache"
+            cache_dir = Path("streamlit_app/vector_cache").resolve()
             if save_vector_index(index, df, cache_dir):
                 logger.info("Vector index saved for future use")
             
