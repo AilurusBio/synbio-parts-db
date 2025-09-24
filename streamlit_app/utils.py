@@ -9,6 +9,10 @@ import logging
 from pathlib import Path
 from contextlib import contextmanager
 
+# 配置日志
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 # Try to import DuckDB
 try:
     import duckdb
@@ -17,10 +21,6 @@ try:
 except ImportError:
     DUCKDB_AVAILABLE = False
     logger.warning("DuckDB not available, using SQLite only")
-
-# 配置日志
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 @contextmanager
 def get_db_connection():
