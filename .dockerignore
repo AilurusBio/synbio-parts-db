@@ -1,0 +1,75 @@
+# Docker ignore file for SynVectorDB githubshare
+
+# Version control
+.git
+.gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+logs/*.log
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Test files
+test_*.py
+*_test.py
+
+# Backup files
+*.bak
+*.backup
+
+# Large data files (keep only essential)
+*.parquet
+*.lance/
+!data/parts.db
+!data/parts.duckdb
+
+# Development scripts
+start.sh
+start.bat
+REFACTOR_PLAN.md
