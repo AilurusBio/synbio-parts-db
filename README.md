@@ -256,51 +256,20 @@ This local deployment is part of a comprehensive ecosystem of SynVectorDB deploy
 
 ## 👥 Research Team
 
-### Principal Investigators
-- **Dr. Wei Zhou** (Corresponding Author)
-  - Department of Endodontics, Shanghai Ninth People's Hospital
-  - Shanghai Jiao Tong University School of Medicine
-  - Email: zhouweicd@shsmu.edu.cn
+**Principal Investigator**: Dr. Wei Zhou  
+**Institution**: Department of Endodontics, Shanghai Ninth People's Hospital, Shanghai Jiao Tong University School of Medicine  
+**Contact**: zhouweicd@shsmu.edu.cn
 
-- **Dr. Jie Song** (Corresponding Author)
-  - Research and Development Department, Beijing Xunzhu Biotechnology Co. Ltd.
-  - School of Chemistry and Molecular Biosciences, The University of Queensland
-  - Email: jiesong@whu.edu.cn
+**Collaborating Institutions**:
+- Shanghai Jiao Tong University School of Medicine
+- Beijing Xunzhu Biotechnology Co., Ltd.
+- The University of Queensland
 
-### Contributing Authors
-- **Hao Li** (Co-first Author)
-  - Shanghai Jiao Tong University School of Medicine
-  - National Center for Stomatology
+## 📚 About This Project
 
-- **Jiani Hu** (Co-first Author)
-  - Beijing Xunzhu Biotechnology Co. Ltd.
-  - The University of Queensland
+SynVectorDB is developed as part of ongoing research in synthetic biology informatics and AI-driven biological data retrieval. The system demonstrates novel approaches to biological part organization and semantic search technologies.
 
-### Institutional Affiliations
-- Shanghai Jiao Tong University School of Medicine, College of Stomatology
-- National Center for Stomatology, National Clinical Research Center for Oral Diseases
-- Shanghai Key Laboratory of Stomatology
-- Beijing Xunzhu Biotechnology Co. Ltd.
-- School of Chemistry and Molecular Biosciences, The University of Queensland
-
-## 📚 Citation
-
-If you use SynVectorDB in your research, please cite our work:
-
-```bibtex
-@article{synvectordb2024,
-  title={SynVectorDB: Embedding-Based Retrieval System for Synthetic Biology Parts},
-  author={Li, Hao and Hu, Jiani and Song, Jie and Zhou, Wei},
-  journal={Bioinformatics},
-  year={2024},
-  note={Co-first authors: Hao Li, Jiani Hu; Corresponding authors: Jie Song, Wei Zhou},
-  url={https://github.com/AilurusBio/synbio-parts-db}
-}
-```
-
-## 📄 License
-
-This project is licensed under the MIT License, promoting open science and reproducible research in synthetic biology informatics.
+For academic inquiries or collaboration opportunities, please contact the research team.
 
 ## 🔄 Updates
 
