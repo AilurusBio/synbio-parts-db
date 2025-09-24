@@ -14,12 +14,12 @@ from urllib.parse import urljoin
 # Data sources configuration
 DATA_SOURCES = {
     "parts.duckdb": {
-        "url": "https://pub-4d2e8b8b95c64b8aa4f8c6b6b5b5b5b5.r2.dev/parts.duckdb",
+        "url": "https://r2data.sjtu.bio/parts.duckdb",
         "size": "~50MB",
         "description": "Main DuckDB database with 19,850 synthetic biology parts"
     },
     "parts.db": {
-        "url": "https://pub-4d2e8b8b95c64b8aa4f8c6b6b5b5b5b5.r2.dev/parts.db", 
+        "url": "https://r2data.sjtu.bio/parts.db", 
         "size": "~45MB",
         "description": "SQLite fallback database"
     }
