@@ -1,5 +1,5 @@
 #!/bin/bash
-# SynVectorDB 管理脚本 - 启动、停止、日志管理
+# SynVectorDB Management Script - Start, Stop, Log Management
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 APP_DIR="$SCRIPT_DIR/streamlit_app"
@@ -7,17 +7,17 @@ PID_FILE="$SCRIPT_DIR/.synvectordb.pid"
 LOG_FILE="$SCRIPT_DIR/logs/synvectordb.log"
 ERROR_LOG="$SCRIPT_DIR/logs/error.log"
 
-# 创建日志目录
+# Create log directory
 mkdir -p "$SCRIPT_DIR/logs"
 
-# 颜色输出
+# Color output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# 日志函数
+# Logging functions
 log() {
     echo -e "${BLUE}[$(date '+%Y-%m-%d %H:%M:%S')]${NC} $1"
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] $1" >> "$LOG_FILE"
@@ -38,7 +38,7 @@ warning() {
     echo "[$(date '+%Y-%m-%d %H:%M:%S')] [WARNING] $1" >> "$LOG_FILE"
 }
 
-# 检查进程是否运行
+# Check if process is running
 is_running() {
     if [ -f "$PID_FILE" ]; then
         local pid=$(cat "$PID_FILE")
@@ -52,63 +52,63 @@ is_running() {
     return 1
 }
 
-# 启动服务
+# Start service
 start() {
-    log "🚀 启动 SynVectorDB 服务..."
+    log "🚀 Starting SynVectorDB service..."
     
     if is_running; then
-        warning "服务已在运行中 (PID: $(cat "$PID_FILE"))"
+        warning "Service already running (PID: $(cat "$PID_FILE"))"
         return 1
     fi
     
-    # 检查依赖
-    log "📦 检查依赖..."
+    # Check dependencies
+    log "📦 Checking dependencies..."
     cd "$APP_DIR"
     
     if ! python3 -c "import streamlit, duckdb, pandas, plotly" 2>/dev/null; then
-        log "安装缺失的依赖..."
+        log "Installing missing dependencies..."
         pip3 install -r requirements.txt >> "$LOG_FILE" 2>> "$ERROR_LOG"
     fi
     
-    # 检查数据文件
+    # Check data files
     if [ ! -f "../data/parts.duckdb" ]; then
-        error "数据库文件不存在: ../data/parts.duckdb"
+        error "Database file not found: ../data/parts.duckdb"
         return 1
     fi
     
-    # 启动Streamlit应用
-    log "🌐 启动Streamlit应用 (端口: 8501)..."
+    # Start Streamlit application
+    log "🌐 Starting Streamlit application (port: 8501)..."
     nohup streamlit run Home.py --server.port 8501 --server.address 0.0.0.0 --server.headless true >> "$LOG_FILE" 2>> "$ERROR_LOG" &
     local pid=$!
     echo $pid > "$PID_FILE"
     
-    # 等待启动
+    # Wait for startup
     sleep 5
     
     if is_running; then
-        success "SynVectorDB 启动成功!"
-        log "📊 前端地址: http://localhost:8501"
-        log "📝 日志文件: $LOG_FILE"
-        log "❌ 错误日志: $ERROR_LOG"
-        log "🔍 使用 '$0 status' 查看状态"
-        log "⏹️  使用 '$0 stop' 停止服务"
+        success "SynVectorDB started successfully!"
+        log "📊 Frontend URL: http://localhost:8501"
+        log "📝 Log file: $LOG_FILE"
+        log "❌ Error log: $ERROR_LOG"
+        log "🔍 Use '$0 status' to check status"
+        log "⏹️  Use '$0 stop' to stop service"
     else
-        error "启动失败，请检查日志: $ERROR_LOG"
+        error "Startup failed, please check log: $ERROR_LOG"
         return 1
     fi
 }
 
-# 停止服务
+# Stop service
 stop() {
-    log "⏹️  停止 SynVectorDB 服务..."
+    log "⏹️  Stopping SynVectorDB service..."
     
     if ! is_running; then
-        warning "服务未运行"
+        warning "Service not running"
         return 1
     fi
     
     local pid=$(cat "$PID_FILE")
-    log "终止进程 PID: $pid"
+    log "Terminating process PID: $pid"
     
     # 优雅停止
     kill "$pid" 2>/dev/null

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-SynVectorDB githubshare - Enhanced Version Launcher
-启动增强版本，支持DuckDB和本地向量搜索
+SynVectorDB Local Deployment - Enhanced Version Launcher
+Start enhanced version with DuckDB and local vector search support
 """
 
 import os
@@ -10,13 +10,13 @@ import subprocess
 from pathlib import Path
 
 def main():
-    """启动增强版应用"""
+    """Start enhanced application"""
     
-    # 设置工作目录
+    # Set working directory
     current_dir = Path(__file__).parent
     streamlit_dir = current_dir / "streamlit_app"
     
-    print("🧬 SynVectorDB githubshare - Enhanced Version")
+    print("🧬 SynVectorDB Local Deployment - Enhanced Version")
     print("=" * 60)
     print("Features:")
     print("✅ DuckDB database integration")
@@ -26,7 +26,7 @@ def main():
     print("✅ Enhanced statistics and analytics")
     print("=" * 60)
     
-    # 检查依赖
+    # Check dependencies
     try:
         import streamlit
         import duckdb
@@ -38,7 +38,7 @@ def main():
         print("Please install: pip install -r requirements_enhanced.txt")
         sys.exit(1)
     
-    # 检查数据库
+    # Check database
     db_path = current_dir / "data" / "parts.duckdb"
     if not db_path.exists():
         print(f"❌ Database not found: {db_path}")
@@ -47,7 +47,7 @@ def main():
     else:
         print(f"✅ Database found: {db_path}")
     
-    # 检查模型
+    # Check models
     model_dir = streamlit_dir / "models" / "models--sentence-transformers--all-MiniLM-L6-v2"
     if not model_dir.exists():
         print(f"❌ Vector model not found: {model_dir}")
@@ -62,10 +62,10 @@ def main():
     print("🌐 Access at: http://localhost:8501")
     print("=" * 60)
     
-    # 启动Streamlit应用
+    # Start Streamlit application
     os.chdir(streamlit_dir)
     
-    # 使用增强版的Home页面
+    # Use enhanced Home page
     subprocess.run([
         sys.executable, "-m", "streamlit", "run", 
         "Home_enhanced.py",

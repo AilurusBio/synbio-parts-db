@@ -1,39 +1,39 @@
 #!/bin/bash
-# SynVectorDB 一键启动脚本
+# SynVectorDB One-Click Startup Script
 
-echo "🚀 SynVectorDB 启动脚本"
+echo "🚀 SynVectorDB Startup Script"
 echo "========================"
 
-# 检查Python环境
+# Check Python environment
 if ! command -v python3 &> /dev/null; then
-    echo "❌ Python3 未安装，请先安装Python3"
+    echo "❌ Python3 not installed, please install Python3 first"
     exit 1
 fi
 
-# 检查pip
+# Check pip
 if ! command -v pip3 &> /dev/null; then
-    echo "❌ pip3 未安装，请先安装pip3"
+    echo "❌ pip3 not installed, please install pip3 first"
     exit 1
 fi
 
-# 进入应用目录
+# Enter application directory
 cd "$(dirname "$0")/streamlit_app"
 
-echo "📦 检查依赖..."
-# 安装依赖
+echo "📦 Checking dependencies..."
+# Install dependencies
 pip3 install -r requirements.txt
 
-echo "🔍 检查数据文件..."
-# 检查数据文件
+echo "🔍 Checking data files..."
+# Check data files
 if [ ! -f "../data/parts.duckdb" ]; then
-    echo "❌ 数据库文件不存在，请确保data目录包含必要文件"
+    echo "❌ Database file not found, please ensure data directory contains necessary files"
     exit 1
 fi
 
-echo "✅ 准备就绪，启动Streamlit应用..."
-echo "🌐 应用将在浏览器中打开: http://localhost:8501"
-echo "⏹️ 按 Ctrl+C 停止应用"
+echo "✅ Ready, starting Streamlit application..."
+echo "🌐 Application will open in browser: http://localhost:8501"
+echo "⏹️ Press Ctrl+C to stop application"
 echo ""
 
-# 启动Streamlit
+# Start Streamlit
 streamlit run Home.py --server.port 8501 --server.address localhost

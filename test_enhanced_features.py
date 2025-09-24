@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-SynVectorDB githubshare - Enhanced Features Test Suite
-测试DuckDB集成和本地向量计算功能
+SynVectorDB Local Deployment - Enhanced Features Test Suite
+Test DuckDB integration and local vector computation functionality
 """
 
 import sys
