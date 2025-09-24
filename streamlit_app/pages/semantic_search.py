@@ -7,6 +7,15 @@ import streamlit as st
 import pandas as pd
 from utils import search_parts, get_parts_sample
 
+# Try to import enhanced semantic search
+try:
+    from utils_enhanced import semantic_search_local, VECTOR_SUPPORT, FAISS_SUPPORT
+    SEMANTIC_AVAILABLE = True
+except ImportError:
+    SEMANTIC_AVAILABLE = False
+    VECTOR_SUPPORT = False
+    FAISS_SUPPORT = False
+
 # Page configuration
 st.set_page_config(
     page_title="Semantic Search - SynVectorDB",
@@ -21,7 +30,10 @@ def main():
     st.markdown("Advanced search using natural language queries and AI-powered semantic matching")
     
     # Check if advanced search is available
-    st.info("ℹ️ **Note**: This is a simplified version. Advanced semantic search with AI embeddings requires additional setup.")
+    if SEMANTIC_AVAILABLE and VECTOR_SUPPORT:
+        st.success(f"🤖 **AI-Powered Semantic Search Available** (Vector: ✅, FAISS: {'✅' if FAISS_SUPPORT else '❌'})")
+    else:
+        st.info("ℹ️ **Note**: Using simplified text-based search. AI semantic search requires sentence-transformers and FAISS.")
     
     # Search interface
     st.markdown("## 🧠 Natural Language Search")
@@ -42,11 +54,18 @@ def main():
         )
     
     with col2:
-        search_mode = st.selectbox(
-            "Search mode:",
-            ["Text-based search", "Semantic search (if available)"],
-            index=0
-        )
+        if SEMANTIC_AVAILABLE and VECTOR_SUPPORT:
+            search_mode = st.selectbox(
+                "Search mode:",
+                ["AI Semantic Search", "Text-based search"],
+                index=0
+            )
+        else:
+            search_mode = st.selectbox(
+                "Search mode:",
+                ["Text-based search"],
+                index=0
+            )
     
     # Search button
     if st.button("🔍 Search", type="primary"):
@@ -55,11 +74,15 @@ def main():
             return
         
         with st.spinner("Searching for relevant parts..."):
-            # Use basic text search (semantic search would require additional setup)
-            results = search_parts(
-                query=search_query,
-                limit=search_limit
-            )
+            # Choose search method based on availability and user selection
+            if SEMANTIC_AVAILABLE and VECTOR_SUPPORT and search_mode == "AI Semantic Search":
+                results = semantic_search_local(search_query, top_k=search_limit)
+            else:
+                # Fallback to text-based search
+                results = search_parts(
+                    query=search_query,
+                    limit=search_limit
+                )
             
             if results:
                 st.success(f"Found {len(results)} potentially relevant parts")
@@ -81,6 +104,11 @@ def main():
                         with col2:
                             if part.get('sequence_length'):
                                 st.metric("Sequence Length", f"{part.get('sequence_length')} bp")
+                            
+                            # Show similarity score for semantic search
+                            if part.get('similarity_score') is not None:
+                                similarity = part.get('similarity_score')
+                                st.metric("Similarity Score", f"{similarity:.3f}")
                             
                             if part.get('uid'):
                                 st.code(f"UID: {part.get('uid')}")
