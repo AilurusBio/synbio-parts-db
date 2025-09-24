@@ -1,8 +1,8 @@
-# SynVectorDB githubshare
+# SynVectorDB Local Deployment
 
 **Local Deployment Version of SynVectorDB: Embedding-Based Retrieval System for Synthetic Biology Parts**
 
-This repository contains the **githubshare** version - a standalone, local deployment of SynVectorDB designed for educational, research, and demonstration purposes. SynVectorDB is a comprehensive embedding-based retrieval system that addresses critical challenges in synthetic biology part discovery through AI-driven semantic search and systematic data curation.
+This repository contains a standalone, local deployment of SynVectorDB designed for educational, research, and demonstration purposes. SynVectorDB is a comprehensive embedding-based retrieval system that addresses critical challenges in synthetic biology part discovery through AI-driven semantic search and systematic data curation.
 
 ## 📖 About SynVectorDB
 
@@ -24,7 +24,7 @@ This work has been developed as part of ongoing research in synthetic biology in
 ```bash
 # Clone the repository
 git clone https://github.com/AilurusBio/synbio-parts-db.git
-cd synbio-parts-db/githubshare
+cd synbio-parts-db
 
 # Run automated setup (downloads data, installs dependencies, starts app)
 ./setup.sh
@@ -75,7 +75,7 @@ python3 scripts/download_data.py
 ## 📁 Project Structure
 
 ```
-githubshare/
+synbio-parts-db/
 ├── streamlit_app/           # Main application code
 │   ├── Home.py             # Homepage
 │   ├── pages/              # Application pages
@@ -83,7 +83,7 @@ githubshare/
 ├── scripts/                # Setup and utility scripts
 ├── data/                   # Database files (auto-downloaded)
 ├── logs/                   # Application logs
-├── requirements.txt        # Python dependencies
+├── requirements_enhanced.txt # Python dependencies
 ├── setup.sh               # Automated setup script
 └── manage.sh              # Application management
 ```
@@ -199,7 +199,7 @@ docker run -p 8501:8501 synvectordb-githubshare
 
 ## 🌐 SynVectorDB Ecosystem
 
-This githubshare version is part of a comprehensive ecosystem of SynVectorDB deployments:
+This local deployment is part of a comprehensive ecosystem of SynVectorDB deployments:
 
 ### Production Services
 - **Web Interface**: [https://svdb.sjtu.bio](https://svdb.sjtu.bio) - Full-featured production deployment
@@ -207,7 +207,7 @@ This githubshare version is part of a comprehensive ecosystem of SynVectorDB dep
 - **MCP Server**: [NPM Package](https://www.npmjs.com/package/synvectordb) - AI assistant integration
 
 ### Local Deployments
-- **githubshare** (this repository): Simplified local deployment for education and research
+- **Local Version** (this repository): Simplified local deployment for education and research
 - **Full Local**: Complete feature parity with cloud services for institutional deployment
 - **Docker Containers**: Containerized deployment for scalable infrastructure
 
