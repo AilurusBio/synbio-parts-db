@@ -67,10 +67,11 @@ python3 scripts/download_data.py
 ## 🛠 Technical Stack
 
 - **Frontend**: Streamlit web framework
-- **Database**: DuckDB (primary) + SQLite (fallback)
-- **AI Models**: Sentence Transformers for semantic search
+- **Database**: DuckDB (preferred) with SQLite fallback for maximum compatibility
+- **AI Models**: Sentence Transformers for semantic search (optional)
 - **Visualization**: Plotly for interactive charts
-- **Search**: FAISS for vector similarity search
+- **Search**: FAISS for vector similarity search (optional)
+- **Data Processing**: Pandas for data manipulation
 
 ## 📁 Project Structure
 
@@ -131,7 +132,15 @@ synbio-parts-db/
    python3 scripts/download_data.py  # Re-download data
    ```
 
-4. **AI models not loading**
+4. **Database type inconsistency**
+   ```bash
+   python3 test_database_compatibility.py  # Test database setup
+   ```
+   - Application prefers DuckDB but falls back to SQLite
+   - Both database files should be downloaded automatically
+   - Check data directory for `parts.duckdb` and `parts.db`
+
+5. **AI models not loading**
    - Ensure stable internet connection
    - Check available disk space (500MB+ required)
    - Models are cached in `streamlit_app/models/`

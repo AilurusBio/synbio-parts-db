@@ -139,6 +139,18 @@ start_application() {
     fi
 }
 
+# Fix script permissions
+fix_permissions() {
+    log "Setting up script permissions..."
+    
+    # Make sure all scripts are executable
+    chmod +x "$SCRIPT_DIR/manage.sh" 2>/dev/null || true
+    chmod +x "$SCRIPT_DIR/scripts/download_data.py" 2>/dev/null || true
+    chmod +x "$SCRIPT_DIR/setup.sh" 2>/dev/null || true
+    
+    log "✅ Script permissions configured"
+}
+
 # Main setup function
 main() {
     echo "🧬 SynVectorDB Local Deployment - Setup & Launch"
@@ -152,6 +164,7 @@ main() {
     echo "6. Start the application"
     echo "=================================================="
     
+    fix_permissions
     check_requirements
     setup_directories
     install_dependencies

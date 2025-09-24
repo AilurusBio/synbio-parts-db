@@ -9,6 +9,15 @@ import logging
 from pathlib import Path
 from contextlib import contextmanager
 
+# Try to import DuckDB
+try:
+    import duckdb
+    DUCKDB_AVAILABLE = True
+    logger.info("DuckDB support enabled")
+except ImportError:
+    DUCKDB_AVAILABLE = False
+    logger.warning("DuckDB not available, using SQLite only")
+
 # 配置日志
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -17,37 +26,65 @@ logger = logging.getLogger(__name__)
 def get_db_connection():
     """
     Database connection context manager
-    Simplified version, SQLite only
+    Supports DuckDB (preferred) and SQLite (fallback)
     """
     conn = None
+    db_type = None
+    
     try:
-        # Try different possible paths
-        possible_paths = [
+        # Try DuckDB first if available
+        if DUCKDB_AVAILABLE:
+            duckdb_paths = [
+                Path("../data/parts.duckdb"),
+                Path("data/parts.duckdb"),
+                Path("./data/parts.duckdb")
+            ]
+            
+            for path in duckdb_paths:
+                if path.exists():
+                    try:
+                        conn = duckdb.connect(str(path), read_only=True)
+                        db_type = "DuckDB"
+                        logger.info(f"DuckDB连接成功: {path}")
+                        yield conn
+                        return
+                    except Exception as e:
+                        logger.warning(f"DuckDB连接失败 {path}: {e}")
+                        continue
+        
+        # Fallback to SQLite
+        sqlite_paths = [
             Path("../data/parts.db"),
             Path("data/parts.db"),
             Path("./data/parts.db")
         ]
         
-        db_path = None
-        for path in possible_paths:
+        for path in sqlite_paths:
             if path.exists():
-                db_path = path
-                break
+                try:
+                    conn = sqlite3.connect(str(path))
+                    db_type = "SQLite"
+                    logger.info(f"SQLite连接成功: {path}")
+                    yield conn
+                    return
+                except Exception as e:
+                    logger.warning(f"SQLite连接失败 {path}: {e}")
+                    continue
         
-        if db_path is None:
-            logger.error(f"Database file not found in any of: {possible_paths}")
-            yield None
-            return
+        # No database found
+        all_paths = (duckdb_paths if DUCKDB_AVAILABLE else []) + sqlite_paths
+        logger.error(f"未找到可用数据库文件: {all_paths}")
+        yield None
         
-        conn = sqlite3.connect(str(db_path))
-        logger.info("数据库连接成功")
-        yield conn
     except Exception as e:
         logger.error(f"数据库连接失败: {e}")
         yield None
     finally:
         if conn:
-            conn.close()
+            try:
+                conn.close()
+            except:
+                pass
 
 def get_basic_stats():
     """获取基础统计信息"""
@@ -145,17 +182,53 @@ def search_parts(query="", type_filter="", source_filter="", limit=20):
         logger.error(f"搜索部件失败: {e}")
         return []
 
+def get_database_info():
+    """获取数据库类型和状态信息"""
+    info = {
+        "duckdb_available": DUCKDB_AVAILABLE,
+        "database_type": None,
+        "database_path": None,
+        "connection_status": "disconnected"
+    }
+    
+    try:
+        with get_db_connection() as conn:
+            if conn is None:
+                info["connection_status"] = "failed"
+                return info
+            
+            # Detect database type
+            if hasattr(conn, 'execute') and 'duckdb' in str(type(conn)):
+                info["database_type"] = "DuckDB"
+            else:
+                info["database_type"] = "SQLite"
+            
+            info["connection_status"] = "connected"
+            
+            # Try to get a simple count to verify functionality
+            result = conn.execute("SELECT COUNT(*) FROM parts").fetchone()
+            if result:
+                info["parts_count"] = result[0]
+                info["connection_status"] = "functional"
+                
+    except Exception as e:
+        info["connection_status"] = f"error: {str(e)}"
+    
+    return info
+
 def test_database():
     """测试数据库连接和基础功能"""
     try:
-        stats = get_basic_stats()
-        if "error" in stats:
-            return False, stats["error"]
+        db_info = get_database_info()
         
-        sample = get_parts_sample(5)
-        if not sample:
-            return False, "无法获取样本数据"
-        
-        return True, f"数据库正常，共{stats['total_parts']}个部件"
+        if db_info["connection_status"] == "functional":
+            parts_count = db_info.get("parts_count", 0)
+            db_type = db_info.get("database_type", "Unknown")
+            return True, f"数据库正常 ({db_type})，共{parts_count}个部件"
+        elif db_info["connection_status"] == "connected":
+            return False, "数据库连接成功但无法查询数据"
+        else:
+            return False, f"数据库连接失败: {db_info['connection_status']}"
+            
     except Exception as e:
         return False, str(e)

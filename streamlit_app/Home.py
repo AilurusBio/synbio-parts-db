@@ -7,7 +7,7 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-from utils import get_basic_stats, get_parts_sample, test_database
+from utils import get_basic_stats, get_parts_sample, test_database, get_database_info
 
 # Page configuration
 st.set_page_config(
@@ -24,13 +24,35 @@ def main():
     st.title("🧬 SynVectorDB - Synthetic Biology Parts Database")
     st.markdown("---")
     
-    # Test database connection
+    # Test database connection and show database info
+    db_info = get_database_info()
     db_ok, db_msg = test_database()
+    
+    # Database status section
+    st.markdown("## 🗄️ Database Status")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if db_ok:
+            st.success(f"✅ {db_msg}")
+        else:
+            st.error(f"❌ {db_msg}")
+    
+    with col2:
+        db_type = db_info.get("database_type", "Unknown")
+        if db_type == "DuckDB":
+            st.info(f"🦆 Database: {db_type}")
+        elif db_type == "SQLite":
+            st.info(f"🗃️ Database: {db_type}")
+        else:
+            st.warning(f"❓ Database: {db_type}")
+    
+    with col3:
+        duckdb_status = "✅ Available" if db_info.get("duckdb_available") else "❌ Not Available"
+        st.info(f"🦆 DuckDB Support: {duckdb_status}")
+    
     if not db_ok:
-        st.error(f"❌ Database connection failed: {db_msg}")
         st.stop()
-    else:
-        st.success(f"✅ {db_msg}")
     
     # Get statistics data
     stats = get_basic_stats()
