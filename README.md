@@ -9,7 +9,7 @@ This repository contains a standalone, local deployment of SynVectorDB designed 
 SynVectorDB represents a methodological breakthrough in biological part organization and retrieval, developed through collaborative research between Shanghai Jiao Tong University, Beijing Xunzhu Biotechnology, and The University of Queensland. The system addresses fundamental limitations in existing synthetic biology repositories through:
 
 - **Advanced Data Integration**: Systematic curation of 19,850 biological parts from multiple authoritative sources
-- **AI-Powered Semantic Search**: BGE-M3 multilingual embeddings enabling context-aware part discovery
+- **AI-Powered Semantic Search**: Sentence Transformers embeddings enabling context-aware part discovery
 - **Hierarchical Classification**: Novel three-level taxonomy organizing parts into functionally coherent categories
 - **Standardized Curation**: Literature-based validation protocols achieving 7,656 verified parts
 - **SBOL3 Compatibility**: Full compliance with synthetic biology open language standards
@@ -97,27 +97,25 @@ synbio-parts-db/
   - `python3-dev` (for compiling native extensions)
   - `build-essential` (for building dependencies)
 - **Memory**: 2GB+ RAM recommended for AI features
-- **Storage**: 600MB+ free space (150MB data + 400MB AI models + workspace)
+- **Storage**: 650MB+ free space (186MB data + 400MB AI models + workspace)
 - **Network**: Stable internet connection required for initial setup and data download
 
 ### Platform Compatibility
 - **Linux**: Fully supported (recommended)
 - **macOS**: Supported with minor adjustments
 - **Windows**: Supported via WSL2 or native Python installation
-
 ### Data Sources
 - **Core Database Files**: Automatically downloaded from Cloudflare R2 storage
-  - `parts.duckdb` (~50MB): Complete database with embeddings and AI classifications
-  - `parts.db` (~45MB): SQLite version for compatibility
+  - `parts.duckdb` (~72MB): Complete database with embeddings and AI classifications
+  - `parts.db` (~50MB): SQLite version for compatibility
 - **Optional Data Files**: Additional formats for advanced use cases
-  - `parts.fasta` (~25MB): DNA sequences in FASTA format
-  - `sbol_ndjson.jsonl` (~30MB): SBOL3-compliant data in JSON format
+  - `parts.fasta` (~17MB): DNA sequences in FASTA format
+  - `sbol_ndjson.jsonl` (~47MB): SBOL3-compliant data in JSON format
 - **AI Models**: Downloaded on first use (may take 2-3 minutes)
-- **Total Download Size**: ~150MB for all data + ~400MB for AI models
+- **Total Download Size**: ~186MB for all data + ~400MB for AI models
 
 ### Performance Considerations
 - **First Startup**: May take 3-5 minutes due to AI model loading
-- **Subsequent Startups**: ~10-20 seconds with cached models
 - **Search Performance**: Vector search ~10ms, text search ~100ms
 - **Concurrent Users**: Supports 5-10 simultaneous users
 
@@ -127,7 +125,7 @@ synbio-parts-db/
 1. **Port 8501 already in use**
    ```bash
    ./manage.sh stop  # Stop existing instance
-   ./setup.sh        # Restart
+   ./manage.sh restart  # Restart
    ```
 
 2. **Missing dependencies**
@@ -148,17 +146,14 @@ synbio-parts-db/
    - Both database files should be downloaded automatically
    - Check data directory for `parts.duckdb` and `parts.db`
 
-5. **Cross-platform database issues** (Critical)
+5. **Cross-platform database issues** (Resolved)
    ```bash
-   # If you see "No files found that match the pattern" errors:
-   python3 scripts/download_data.py  # Re-run download script
-   # Script will automatically detect and handle incompatible DuckDB files
+   # This issue has been resolved in the latest version
+   # DuckDB files are now fully cross-platform compatible
    ```
-   - **Root Cause**: DuckDB file contains hardcoded Windows/WSL absolute paths (e.g., `/mnt/d/...`)
-   - **Auto-Detection**: Download script automatically tests DuckDB compatibility
-   - **Auto-Resolution**: Incompatible files are renamed to `.incompatible` extension
-   - **Fallback**: Application seamlessly uses SQLite database (100% functional)
-   - **User Impact**: No functionality loss, just different database backend
+   - **Status**: ✅ Fixed - DuckDB files no longer contain hardcoded paths
+   - **Compatibility**: Works seamlessly across Windows, macOS, and Linux
+   - **No Action Required**: Users can use DuckDB on any platform
 
 6. **System dependencies missing**
    ```bash
@@ -176,13 +171,13 @@ synbio-parts-db/
    - Models are cached in `streamlit_app/models/`
 
 #### Memory Issues
-- If system has <4GB RAM, disable AI features by using `requirements.txt` instead of `requirements_enhanced.txt`
+- If system has <4GB RAM, AI features may be slower
 - Monitor memory usage: `./manage.sh status`
 
 #### Network Issues
 - Data download requires stable internet connection
 - Corporate firewalls may block model downloads
-- Use `./setup.sh download` to test data download separately
+- Use `python3 scripts/download_data.py` to test data download separately
 
 ### Development
 
@@ -215,14 +210,6 @@ streamlit run streamlit_app/Home.py --server.runOnSave true
 ./manage.sh logs
 ```
 
-#### Docker Deployment
-```bash
-# Build image
-docker build -t synvectordb-githubshare .
-
-# Run container
-docker run -p 8501:8501 synvectordb-githubshare
-```
 
 ### Security Notes
 - Application runs on localhost by default
@@ -235,11 +222,6 @@ docker run -p 8501:8501 synvectordb-githubshare
 - If used in research, please cite the SynVectorDB paper
 - Data sourced from iGEM Registry and other public repositories
 
-## 🆘 Support
-
-- **Issues**: Report bugs on GitHub Issues
-- **Documentation**: See `/docs` folder for detailed guides
-- **Community**: Join discussions in GitHub Discussions
 
 ## 🌐 SynVectorDB Ecosystem
 
@@ -252,8 +234,7 @@ This local deployment is part of a comprehensive ecosystem of SynVectorDB deploy
 
 ### Local Deployments
 - **Local Version** (this repository): Simplified local deployment for education and research
-- **Full Local**: Complete feature parity with cloud services for institutional deployment
-- **Docker Containers**: Containerized deployment for scalable infrastructure
+- **Institutional Deployment**: Can be configured for multi-user access
 
 ## 👥 Research Team
 
@@ -294,4 +275,4 @@ We welcome contributions from the synthetic biology and bioinformatics communiti
 - **Technical Issues**: Report bugs on [GitHub Issues](https://github.com/AilurusBio/synbio-parts-db/issues)
 - **Research Inquiries**: Contact corresponding authors directly
 - **Collaboration Opportunities**: Reach out through institutional channels
-- **Documentation**: Comprehensive guides available in the `/docs` folder
+- **Documentation**: README and inline help available
