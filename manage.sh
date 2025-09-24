@@ -65,15 +65,35 @@ start() {
     log "📦 Checking dependencies..."
     cd "$APP_DIR"
     
-    if ! python3 -c "import streamlit, duckdb, pandas, plotly" 2>/dev/null; then
+    if ! python3 -c "import streamlit, duckdb, pandas, plotly, sentence_transformers, faiss" 2>/dev/null; then
         log "Installing missing dependencies..."
-        pip3 install -r requirements.txt >> "$LOG_FILE" 2>> "$ERROR_LOG"
+        if [ -f "$SCRIPT_DIR/streamlit_app/requirements.txt" ]; then
+            pip3 install -r "$SCRIPT_DIR/streamlit_app/requirements.txt" >> "$LOG_FILE" 2>> "$ERROR_LOG"
+        elif [ -f "$SCRIPT_DIR/requirements.txt" ]; then
+            pip3 install -r "$SCRIPT_DIR/requirements.txt" >> "$LOG_FILE" 2>> "$ERROR_LOG"
+        else
+            error "❌ Requirements file not found"
+            return 1
+        fi
     fi
     
     # Check data files
     if [ ! -f "$SCRIPT_DIR/data/parts.duckdb" ]; then
-        error "Database file not found: $SCRIPT_DIR/data/parts.duckdb"
-        return 1
+        warn "Database file not found: $SCRIPT_DIR/data/parts.duckdb"
+        log "🔄 Attempting to download data files..."
+        
+        if [ -f "$SCRIPT_DIR/scripts/download_data.py" ]; then
+            python3 "$SCRIPT_DIR/scripts/download_data.py"
+            if [ $? -eq 0 ] && [ -f "$SCRIPT_DIR/data/parts.duckdb" ]; then
+                success "✅ Data files downloaded successfully"
+            else
+                error "❌ Failed to download data files. Please run: python3 scripts/download_data.py"
+                return 1
+            fi
+        else
+            error "❌ Download script not found. Please ensure you have the complete repository."
+            return 1
+        fi
     fi
     
     # Start Streamlit application

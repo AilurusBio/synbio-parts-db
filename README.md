@@ -32,13 +32,12 @@ cd synbio-parts-db
 
 ### Manual Setup
 ```bash
-# Install dependencies
+# Option 1: Fully automated (recommended)
+./manage.sh start
+
+# Option 2: Step by step
 pip install -r streamlit_app/requirements.txt
-
-# Download data files
 python3 scripts/download_data.py
-
-# Start application
 ./manage.sh start
 ```
 
