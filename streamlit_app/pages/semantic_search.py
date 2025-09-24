@@ -1,172 +1,161 @@
 """
-Semantic Search - Natural Language Search
-Demo version with functionality explanation
+SynVectorDB Local Deployment - Semantic Search
+Advanced semantic search using AI embeddings (when available)
 """
 
 import streamlit as st
-import sys
-from pathlib import Path
+import pandas as pd
+from utils import search_parts, get_parts_sample
 
-# Add parent directory to path
-sys.path.append(str(Path(__file__).parent.parent))
-from utils import search_parts
-
+# Page configuration
 st.set_page_config(
     page_title="Semantic Search - SynVectorDB",
-    page_icon="🧠",
+    page_icon="🔍",
     layout="wide"
 )
 
 def main():
-    st.title("🧠 Semantic Search")
-    st.markdown("---")
+    """Main semantic search function"""
     
-    # Feature explanation
-    st.info("""
-    **Note**: This is the githubshare demo version with simplified semantic search functionality.
-    For full semantic search capabilities, please visit the production version: https://app.sjtu.bio
-    """)
+    st.title("🔍 Semantic Search")
+    st.markdown("Advanced search using natural language queries and AI-powered semantic matching")
     
-    # Demo interface
-    st.markdown("## 🔍 Natural Language Search")
+    # Check if advanced search is available
+    st.info("ℹ️ **Note**: This is a simplified version. Advanced semantic search with AI embeddings requires additional setup.")
     
-    # Search input
-    query = st.text_area(
-        "Enter your search query (natural language)",
-        placeholder="Example: Find strong promoters for E. coli expression\nExample: Need fluorescent proteins that work in yeast\nExample: Regulatory elements suitable for mammalian cells",
+    # Search interface
+    st.markdown("## 🧠 Natural Language Search")
+    
+    search_query = st.text_area(
+        "Describe what you're looking for:",
+        placeholder="e.g., 'fluorescent proteins for E.coli expression' or 'strong promoters for mammalian cells'",
         height=100
     )
     
-    # Example queries
-    st.markdown("### 💡 Example Queries")
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns([1, 1])
     
     with col1:
-        if st.button("🦠 E. coli Promoters"):
-            st.session_state.demo_query = "E. coli promoters"
+        search_limit = st.selectbox(
+            "Number of results:",
+            [5, 10, 20, 50],
+            index=1
+        )
     
     with col2:
-        if st.button("🔬 Fluorescent Proteins"):
-            st.session_state.demo_query = "fluorescent proteins"
-    
-    with col3:
-        if st.button("🧬 Regulatory Elements"):
-            st.session_state.demo_query = "regulatory elements"
-    
-    # Handle demo queries
-    if hasattr(st.session_state, 'demo_query'):
-        query = st.session_state.demo_query
-        del st.session_state.demo_query
+        search_mode = st.selectbox(
+            "Search mode:",
+            ["Text-based search", "Semantic search (if available)"],
+            index=0
+        )
     
     # Search button
-    if st.button("🔍 Semantic Search", type="primary") and query:
-        st.markdown("### 🎯 Search Results")
+    if st.button("🔍 Search", type="primary"):
+        if not search_query.strip():
+            st.warning("Please enter a search query")
+            return
         
-        # Demo version: use simple keyword search
-        with st.spinner("Performing semantic search..."):
-            # Simplified keyword extraction
-            keywords = query.lower()
-            if "promoter" in keywords:
-                search_term = "promoter"
-            elif "fluorescent" in keywords or "fluorescence" in keywords:
-                search_term = "fluorescent"
-            elif "protein" in keywords:
-                search_term = "protein"
-            elif "regulatory" in keywords:
-                search_term = "regulatory"
-            elif "reporter" in keywords:
-                search_term = "reporter"
+        with st.spinner("Searching for relevant parts..."):
+            # Use basic text search (semantic search would require additional setup)
+            results = search_parts(
+                query=search_query,
+                limit=search_limit
+            )
+            
+            if results:
+                st.success(f"Found {len(results)} potentially relevant parts")
+                
+                # Display results with enhanced formatting
+                for i, part in enumerate(results, 1):
+                    with st.expander(f"#{i}: {part.get('name', 'Unnamed Part')}", expanded=(i <= 3)):
+                        col1, col2 = st.columns([2, 1])
+                        
+                        with col1:
+                            st.markdown(f"**Description**: {part.get('description', 'No description available')}")
+                            
+                            if part.get('type_level_1'):
+                                st.markdown(f"**Type**: {part.get('type_level_1')}")
+                            
+                            if part.get('source_collection'):
+                                st.markdown(f"**Source**: {part.get('source_collection')}")
+                        
+                        with col2:
+                            if part.get('sequence_length'):
+                                st.metric("Sequence Length", f"{part.get('sequence_length')} bp")
+                            
+                            if part.get('uid'):
+                                st.code(f"UID: {part.get('uid')}")
+                
+                # Download option
+                df = pd.DataFrame(results)
+                csv = df.to_csv(index=False)
+                st.download_button(
+                    label="📥 Download Results",
+                    data=csv,
+                    file_name=f"semantic_search_results.csv",
+                    mime="text/csv"
+                )
             else:
-                search_term = query.split()[0] if query.split() else ""
+                st.warning("No parts found matching your query. Try different keywords or a broader description.")
+    
+    # Example queries
+    st.markdown("## 💡 Example Queries")
+    
+    examples = [
+        "Green fluorescent proteins for bacterial expression",
+        "Strong constitutive promoters",
+        "Inducible expression systems",
+        "Protein degradation tags",
+        "Ribosome binding sites for E.coli",
+        "Mammalian cell expression vectors"
+    ]
+    
+    st.markdown("Try these example queries:")
+    
+    for example in examples:
+        if st.button(f"📝 {example}", key=f"example_{example}"):
+            st.rerun()
+    
+    # Search tips
+    with st.expander("🎯 Search Tips"):
+        st.markdown("""
+        **For better results:**
+        - Use descriptive terms about function (e.g., "fluorescent", "inducible")
+        - Specify the organism if relevant (e.g., "E.coli", "mammalian")
+        - Include the application context (e.g., "expression", "regulation")
+        - Try both specific and general terms
+        
+        **Current limitations:**
+        - This version uses text-based matching
+        - Full semantic search requires AI model setup
+        - Results are ranked by text similarity
+        """)
+    
+    # Random discovery
+    st.markdown("## 🎲 Discover Random Parts")
+    
+    if st.button("🎲 Show Random Parts for Inspiration"):
+        with st.spinner("Loading random parts..."):
+            random_parts = get_parts_sample(8)
             
-            results = search_parts(query=search_term, limit=10)
-        
-        if results:
-            st.success(f"Found {len(results)} relevant results")
-            
-            for i, part in enumerate(results):
-                relevance_score = (10-i)*10
-                with st.expander(f"🧬 {part.get('name', 'Unnamed')} (Relevance: {relevance_score}%)"):
-                    col1, col2 = st.columns([3, 1])
-                    
-                    with col1:
-                        st.markdown(f"**Name:** {part.get('name', 'Not provided')}")
-                        st.markdown(f"**Type:** {part.get('type_level_1', 'N/A')}")
-                        st.markdown(f"**Description:** {part.get('description', 'No description')[:150]}...")
-                    
-                    with col2:
-                        st.markdown(f"**Source:** {part.get('source_collection', 'N/A')}")
-                        if part.get('sequence_length'):
-                            st.markdown(f"**Length:** {part.get('sequence_length')} bp")
-        else:
-            st.warning("No relevant results found, please try other queries")
-    
-    # Feature explanation
-    st.markdown("---")
-    st.markdown("## 📚 About Semantic Search")
-    
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("""
-        ### 🎯 Features
-        - **Natural Language Understanding**: Supports natural language queries
-        - **Semantic Matching**: Based on meaning rather than keyword matching
-        - **Intelligent Ranking**: Results sorted by relevance
-        - **Multi-language Support**: Supports English and Chinese queries
-        - **Context Understanding**: Understands biological context of queries
-        """)
-    
-    with col2:
-        st.markdown("""
-        ### 🔬 Technical Implementation
-        - **Vector Database**: Uses BGE-M3 embedding model
-        - **Semantic Indexing**: Semantic index of 19,850 parts
-        - **Real-time Search**: Millisecond response time
-        - **Cloud Deployment**: Cloudflare Workers + Vectorize
-        - **API Integration**: Supports MCP protocol and REST API
-        """)
-    
-    # Production version link
-    st.markdown("---")
-    st.markdown("## 🌐 Full Feature Experience")
-    
-    st.info("""
-    **Experience the complete semantic search functionality at:**
-    
-    🔗 **Production Version**: https://app.sjtu.bio/semantic-search
-    
-    Production version includes:
-    - Complete BGE-M3 semantic search
-    - Real-time vector retrieval
-    - Advanced filtering options
-    - Detailed relevance scoring
-    - Multi-modal search support
-    """)
-    
-    # API documentation
-    with st.expander("🔌 API Integration"):
-        st.markdown("""
-        ### REST API
-        ```bash
-        curl "https://testsdb.sjtu.bio/semantic_search" \\
-             -H "Content-Type: application/json" \\
-             -d '{"query": "E. coli promoter", "top_k": 10}'
-        ```
-        
-        ### MCP Server (NPM)
-        ```bash
-        npm install synvectordb-mcp-server
-        ```
-        
-        ### Python SDK (Planned)
-        ```python
-        from synvectordb import SemanticSearch
-        
-        search = SemanticSearch()
-        results = search.query("strong promoter for E. coli")
-        ```
-        """)
+            if random_parts:
+                st.markdown("### Random Parts from the Database")
+                
+                # Display in a grid
+                cols = st.columns(2)
+                
+                for i, part in enumerate(random_parts):
+                    with cols[i % 2]:
+                        with st.container():
+                            st.markdown(f"**{part.get('name', 'Unnamed Part')}**")
+                            st.caption(f"Type: {part.get('type_level_1', 'Unknown')}")
+                            
+                            description = part.get('description', 'No description')
+                            if len(description) > 100:
+                                description = description[:100] + "..."
+                            st.markdown(description)
+                            
+                            if part.get('source_collection'):
+                                st.badge(part.get('source_collection'))
 
 if __name__ == "__main__":
     main()

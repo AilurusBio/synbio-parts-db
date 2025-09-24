@@ -1,290 +1,224 @@
 """
-Statistics - Data Statistical Analysis
-Display detailed statistical information of the database
+SynVectorDB Local Deployment - Statistics Dashboard
+View database statistics and analytics
 """
 
 import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-import sys
-from pathlib import Path
+from utils import get_basic_stats
 
-# Add parent directory to path
-sys.path.append(str(Path(__file__).parent.parent))
-from utils import get_db_connection
-
+# Page configuration
 st.set_page_config(
     page_title="Statistics - SynVectorDB",
     page_icon="📊",
     layout="wide"
 )
 
-@st.cache_data
-def get_detailed_stats():
-    """Get detailed statistical data"""
-    try:
-        with get_db_connection() as conn:
-            if conn is None:
-                return {}
-            
-            stats = {}
-            
-            # Basic statistics
-            stats['total_parts'] = conn.execute("SELECT COUNT(*) FROM parts").fetchone()[0]
-            
-            # Type distribution
-            type_dist = conn.execute("""
-                SELECT type_level_1, COUNT(*) as count
-                FROM parts 
-                WHERE type_level_1 IS NOT NULL
-                GROUP BY type_level_1
-                ORDER BY count DESC
-            """).fetchall()
-            stats['type_distribution'] = pd.DataFrame(type_dist, columns=['Type', 'Count'])
-            
-            # Source distribution
-            source_dist = conn.execute("""
-                SELECT source_collection, COUNT(*) as count
-                FROM parts 
-                WHERE source_collection IS NOT NULL
-                GROUP BY source_collection
-                ORDER BY count DESC
-            """).fetchall()
-            stats['source_distribution'] = pd.DataFrame(source_dist, columns=['Source', 'Count'])
-            
-            # Sequence length distribution
-            length_dist = conn.execute("""
-                SELECT 
-                    CASE 
-                        WHEN LENGTH(sequence) < 100 THEN '<100bp'
-                        WHEN LENGTH(sequence) < 500 THEN '100-500bp'
-                        WHEN LENGTH(sequence) < 1000 THEN '500-1000bp'
-                        WHEN LENGTH(sequence) < 5000 THEN '1-5kb'
-                        WHEN LENGTH(sequence) < 10000 THEN '5-10kb'
-                        ELSE '>10kb'
-                    END as length_range,
-                    COUNT(*) as count
-                FROM parts 
-                WHERE sequence IS NOT NULL
-                GROUP BY length_range
-                ORDER BY 
-                    CASE 
-                        WHEN LENGTH(sequence) < 100 THEN 1
-                        WHEN LENGTH(sequence) < 500 THEN 2
-                        WHEN LENGTH(sequence) < 1000 THEN 3
-                        WHEN LENGTH(sequence) < 5000 THEN 4
-                        WHEN LENGTH(sequence) < 10000 THEN 5
-                        ELSE 6
-                    END
-            """).fetchall()
-            stats['length_distribution'] = pd.DataFrame(length_dist, columns=['Length_Range', 'Count'])
-            
-            # GC content distribution
-            gc_stats = conn.execute("""
-                SELECT 
-                    AVG(sequence_gc_content) as avg_gc,
-                    MIN(sequence_gc_content) as min_gc,
-                    MAX(sequence_gc_content) as max_gc
-                FROM parts 
-                WHERE sequence_gc_content IS NOT NULL
-            """).fetchone()
-            stats['gc_content'] = {
-                'avg': gc_stats[0] if gc_stats[0] else 0,
-                'min': gc_stats[1] if gc_stats[1] else 0,
-                'max': gc_stats[2] if gc_stats[2] else 0
-            }
-            
-            # Organism distribution
-            organism_dist = conn.execute("""
-                SELECT metadata_organism, COUNT(*) as count
-                FROM parts 
-                WHERE metadata_organism IS NOT NULL AND metadata_organism != ''
-                GROUP BY metadata_organism
-                ORDER BY count DESC
-                LIMIT 10
-            """).fetchall()
-            stats['organism_distribution'] = pd.DataFrame(organism_dist, columns=['Organism', 'Count'])
-            
-            return stats
-    except Exception as e:
-        st.error(f"Failed to get statistical data: {e}")
-        return {}
-
 def main():
-    st.title("📊 Statistics - Data Analysis")
-    st.markdown("---")
+    """Main statistics function"""
     
-    # Get statistical data
-    with st.spinner("Loading statistical data..."):
-        stats = get_detailed_stats()
+    st.title("📊 Database Statistics")
+    st.markdown("Comprehensive analytics of the synthetic biology parts database")
     
-    if not stats:
-        st.error("Unable to load statistical data")
+    # Load statistics
+    with st.spinner("Loading database statistics..."):
+        stats = get_basic_stats()
+    
+    if "error" in stats:
+        st.error(f"Could not load statistics: {stats['error']}")
         return
     
-    # Overview cards
-    st.markdown("## 📈 Database Overview")
+    # Overview metrics
+    st.markdown("## 📈 Overview")
+    
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("Total Parts", f"{stats['total_parts']:,}")
+        st.metric(
+            "Total Parts",
+            f"{stats['total_parts']:,}",
+            help="Total number of synthetic biology parts in the database"
+        )
     
     with col2:
-        st.metric("Function Types", len(stats['type_distribution']))
+        st.metric(
+            "Part Types",
+            len(stats['type_stats']),
+            help="Number of different part type categories"
+        )
     
     with col3:
-        st.metric("Data Sources", len(stats['source_distribution']))
+        st.metric(
+            "Data Sources",
+            len(stats['source_stats']),
+            help="Number of different source collections"
+        )
     
     with col4:
-        avg_gc = stats['gc_content']['avg']
-        st.metric("Average GC Content", f"{avg_gc:.1f}%" if avg_gc else "N/A")
+        # Calculate average parts per type
+        avg_per_type = stats['total_parts'] / len(stats['type_stats']) if stats['type_stats'] else 0
+        st.metric(
+            "Avg Parts/Type",
+            f"{avg_per_type:.0f}",
+            help="Average number of parts per type category"
+        )
     
-    # Chart display
-    st.markdown("---")
-    st.markdown("## 📊 Detailed Analysis")
+    # Part Type Distribution
+    st.markdown("## 🧬 Part Type Distribution")
     
-    # First row charts
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("### Function Type Distribution")
-        if not stats['type_distribution'].empty:
-            fig = px.pie(
-                stats['type_distribution'], 
-                values='Count', 
-                names='Type',
-                title="Part Function Type Distribution"
-            )
-            fig.update_traces(textposition='inside', textinfo='percent+label')
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No type distribution data available")
-    
-    with col2:
-        st.markdown("### Data Source Distribution")
-        if not stats['source_distribution'].empty:
-            fig = px.bar(
-                stats['source_distribution'], 
-                x='Source', 
+    if stats['type_stats']:
+        # Create DataFrame for type statistics
+        type_df = pd.DataFrame(
+            list(stats['type_stats'].items()),
+            columns=['Part Type', 'Count']
+        ).sort_values('Count', ascending=False)
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            # Bar chart
+            fig_bar = px.bar(
+                type_df,
+                x='Part Type',
                 y='Count',
-                title="Data Source Distribution"
-            )
-            fig.update_xaxes(tickangle=45)
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No source distribution data available")
-    
-    # Second row charts
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown("### Sequence Length Distribution")
-        if not stats['length_distribution'].empty:
-            fig = px.bar(
-                stats['length_distribution'], 
-                x='Length_Range', 
-                y='Count',
-                title="Sequence Length Distribution",
+                title="Parts by Type",
                 color='Count',
                 color_continuous_scale='viridis'
             )
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No length distribution data available")
-    
-    with col2:
-        st.markdown("### Organism Distribution (Top 10)")
-        if not stats['organism_distribution'].empty:
-            fig = px.bar(
-                stats['organism_distribution'], 
-                x='Count', 
-                y='Organism',
-                orientation='h',
-                title="Organism Distribution (Top 10)"
+            fig_bar.update_layout(
+                xaxis_title="Part Type",
+                yaxis_title="Number of Parts",
+                showlegend=False
             )
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No organism distribution data available")
+            st.plotly_chart(fig_bar, use_container_width=True)
+        
+        with col2:
+            # Pie chart
+            fig_pie = px.pie(
+                type_df,
+                values='Count',
+                names='Part Type',
+                title="Type Distribution"
+            )
+            st.plotly_chart(fig_pie, use_container_width=True)
+        
+        # Data table
+        st.markdown("### Detailed Breakdown")
+        
+        # Add percentage column
+        type_df['Percentage'] = (type_df['Count'] / stats['total_parts'] * 100).round(2)
+        type_df['Percentage'] = type_df['Percentage'].astype(str) + '%'
+        
+        st.dataframe(
+            type_df,
+            use_container_width=True,
+            hide_index=True
+        )
     
-    # Detailed data tables
-    st.markdown("---")
-    st.markdown("## 📋 Detailed Data")
+    # Source Collection Distribution
+    st.markdown("## 📚 Source Collection Distribution")
     
-    tab1, tab2, tab3, tab4 = st.tabs(["Function Types", "Data Sources", "Sequence Length", "Organisms"])
+    if stats['source_stats']:
+        # Create DataFrame for source statistics
+        source_df = pd.DataFrame(
+            list(stats['source_stats'].items()),
+            columns=['Source Collection', 'Count']
+        ).sort_values('Count', ascending=False)
+        
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            # Horizontal bar chart
+            fig_source = px.bar(
+                source_df,
+                x='Count',
+                y='Source Collection',
+                orientation='h',
+                title="Parts by Source Collection",
+                color='Count',
+                color_continuous_scale='plasma'
+            )
+            fig_source.update_layout(
+                xaxis_title="Number of Parts",
+                yaxis_title="Source Collection",
+                showlegend=False
+            )
+            st.plotly_chart(fig_source, use_container_width=True)
+        
+        with col2:
+            # Donut chart
+            fig_donut = px.pie(
+                source_df,
+                values='Count',
+                names='Source Collection',
+                title="Source Distribution",
+                hole=0.4
+            )
+            st.plotly_chart(fig_donut, use_container_width=True)
+        
+        # Data table
+        st.markdown("### Source Collection Details")
+        
+        # Add percentage column
+        source_df['Percentage'] = (source_df['Count'] / stats['total_parts'] * 100).round(2)
+        source_df['Percentage'] = source_df['Percentage'].astype(str) + '%'
+        
+        st.dataframe(
+            source_df,
+            use_container_width=True,
+            hide_index=True
+        )
     
-    with tab1:
-        if not stats['type_distribution'].empty:
-            st.dataframe(stats['type_distribution'], use_container_width=True)
-        else:
-            st.info("No function type data available")
+    # Summary insights
+    st.markdown("## 💡 Key Insights")
     
-    with tab2:
-        if not stats['source_distribution'].empty:
-            st.dataframe(stats['source_distribution'], use_container_width=True)
-        else:
-            st.info("No data source data available")
+    insights = []
     
-    with tab3:
-        if not stats['length_distribution'].empty:
-            st.dataframe(stats['length_distribution'], use_container_width=True)
-        else:
-            st.info("No sequence length data available")
+    if stats['type_stats']:
+        # Most common type
+        most_common_type = max(stats['type_stats'], key=stats['type_stats'].get)
+        most_common_count = stats['type_stats'][most_common_type]
+        insights.append(f"**Most common part type**: {most_common_type} ({most_common_count:,} parts)")
     
-    with tab4:
-        if not stats['organism_distribution'].empty:
-            st.dataframe(stats['organism_distribution'], use_container_width=True)
-        else:
-            st.info("No organism data available")
+    if stats['source_stats']:
+        # Largest source
+        largest_source = max(stats['source_stats'], key=stats['source_stats'].get)
+        largest_count = stats['source_stats'][largest_source]
+        insights.append(f"**Largest source collection**: {largest_source} ({largest_count:,} parts)")
     
-    # GC content statistics
-    st.markdown("---")
-    st.markdown("## 🧬 Sequence Feature Analysis")
+    # Database size insight
+    if stats['total_parts'] > 10000:
+        insights.append(f"**Large-scale database**: Contains {stats['total_parts']:,} parts, suitable for comprehensive research")
     
-    col1, col2, col3 = st.columns(3)
+    for insight in insights:
+        st.markdown(f"• {insight}")
+    
+    # Export options
+    st.markdown("## 📥 Export Data")
+    
+    col1, col2 = st.columns(2)
     
     with col1:
-        st.metric(
-            "Average GC Content", 
-            f"{stats['gc_content']['avg']:.2f}%" if stats['gc_content']['avg'] else "N/A"
-        )
+        if stats['type_stats']:
+            type_csv = type_df.to_csv(index=False)
+            st.download_button(
+                label="📊 Download Type Statistics",
+                data=type_csv,
+                file_name="synvectordb_type_statistics.csv",
+                mime="text/csv"
+            )
     
     with col2:
-        st.metric(
-            "Minimum GC Content", 
-            f"{stats['gc_content']['min']:.2f}%" if stats['gc_content']['min'] else "N/A"
-        )
-    
-    with col3:
-        st.metric(
-            "Maximum GC Content", 
-            f"{stats['gc_content']['max']:.2f}%" if stats['gc_content']['max'] else "N/A"
-        )
-    
-    # Data export
-    st.markdown("---")
-    st.markdown("## 💾 Data Export")
-    
-    if st.button("📥 Export Statistical Data (CSV)"):
-        # Create summary data
-        summary_data = {
-            "Metric": ["Total Parts", "Function Types", "Data Sources", "Average GC Content"],
-            "Value": [
-                stats['total_parts'],
-                len(stats['type_distribution']),
-                len(stats['source_distribution']),
-                f"{stats['gc_content']['avg']:.2f}%" if stats['gc_content']['avg'] else "N/A"
-            ]
-        }
-        summary_df = pd.DataFrame(summary_data)
-        
-        csv = summary_df.to_csv(index=False)
-        st.download_button(
-            label="Download Summary Statistics",
-            data=csv,
-            file_name="synvectordb_summary_stats.csv",
-            mime="text/csv"
-        )
+        if stats['source_stats']:
+            source_csv = source_df.to_csv(index=False)
+            st.download_button(
+                label="📚 Download Source Statistics",
+                data=source_csv,
+                file_name="synvectordb_source_statistics.csv",
+                mime="text/csv"
+            )
 
 if __name__ == "__main__":
     main()
