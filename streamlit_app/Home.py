@@ -51,6 +51,12 @@ def main():
         duckdb_status = "✅ Available" if db_info.get("duckdb_available") else "❌ Not Available"
         st.info(f"🦆 DuckDB Support: {duckdb_status}")
     
+    # Check for cross-platform issues
+    if db_info.get("cross_platform_issue"):
+        st.error("🚨 **跨平台兼容性问题检测**")
+        st.error("DuckDB数据库文件包含Windows路径，无法在Linux上使用。系统已自动切换到SQLite数据库。")
+        st.info("💡 **解决方案**: 请使用在Linux系统上生成的DuckDB文件，或继续使用SQLite数据库。")
+    
     if not db_ok:
         st.stop()
     

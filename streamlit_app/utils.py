@@ -44,12 +44,26 @@ def get_db_connection():
                 if path.exists():
                     try:
                         conn = duckdb.connect(str(path), read_only=True)
-                        db_type = "DuckDB"
-                        logger.info(f"DuckDB连接成功: {path}")
-                        yield conn
-                        return
+                        # Test if the database is actually functional
+                        test_result = conn.execute("SELECT COUNT(*) FROM parts LIMIT 1").fetchone()
+                        if test_result and test_result[0] > 0:
+                            db_type = "DuckDB"
+                            logger.info(f"DuckDB连接成功: {path} ({test_result[0]} parts)")
+                            yield conn
+                            return
+                        else:
+                            logger.warning(f"DuckDB数据库为空或无效: {path}")
+                            conn.close()
+                            continue
                     except Exception as e:
                         logger.warning(f"DuckDB连接失败 {path}: {e}")
+                        # Check if it's a path-related error (Windows paths on Linux)
+                        if "No files found that match the pattern" in str(e) or "/mnt/" in str(e):
+                            logger.error(f"检测到跨平台路径问题，DuckDB文件包含Windows路径: {e}")
+                        try:
+                            conn.close()
+                        except:
+                            pass
                         continue
         
         # Fallback to SQLite
@@ -63,12 +77,24 @@ def get_db_connection():
             if path.exists():
                 try:
                     conn = sqlite3.connect(str(path))
-                    db_type = "SQLite"
-                    logger.info(f"SQLite连接成功: {path}")
-                    yield conn
-                    return
+                    # Test if the database is actually functional
+                    cursor = conn.cursor()
+                    test_result = cursor.execute("SELECT COUNT(*) FROM parts").fetchone()
+                    if test_result and test_result[0] > 0:
+                        db_type = "SQLite"
+                        logger.info(f"SQLite连接成功: {path} ({test_result[0]} parts)")
+                        yield conn
+                        return
+                    else:
+                        logger.warning(f"SQLite数据库为空或无效: {path}")
+                        conn.close()
+                        continue
                 except Exception as e:
                     logger.warning(f"SQLite连接失败 {path}: {e}")
+                    try:
+                        conn.close()
+                    except:
+                        pass
                     continue
         
         # No database found
@@ -188,13 +214,28 @@ def get_database_info():
         "duckdb_available": DUCKDB_AVAILABLE,
         "database_type": None,
         "database_path": None,
-        "connection_status": "disconnected"
+        "connection_status": "disconnected",
+        "cross_platform_issue": False
     }
     
     try:
         with get_db_connection() as conn:
             if conn is None:
                 info["connection_status"] = "failed"
+                # Check for cross-platform issues
+                data_dir = Path("data")
+                if data_dir.exists():
+                    duckdb_file = data_dir / "parts.duckdb"
+                    if duckdb_file.exists() and DUCKDB_AVAILABLE:
+                        # Try to detect cross-platform path issues
+                        try:
+                            test_conn = duckdb.connect(str(duckdb_file), read_only=True)
+                            test_conn.execute("SELECT COUNT(*) FROM parts LIMIT 1").fetchone()
+                            test_conn.close()
+                        except Exception as e:
+                            if "No files found that match the pattern" in str(e) or "/mnt/" in str(e):
+                                info["cross_platform_issue"] = True
+                                info["connection_status"] = "cross_platform_error"
                 return info
             
             # Detect database type
@@ -206,13 +247,23 @@ def get_database_info():
             info["connection_status"] = "connected"
             
             # Try to get a simple count to verify functionality
-            result = conn.execute("SELECT COUNT(*) FROM parts").fetchone()
+            if info["database_type"] == "SQLite":
+                cursor = conn.cursor()
+                result = cursor.execute("SELECT COUNT(*) FROM parts").fetchone()
+            else:
+                result = conn.execute("SELECT COUNT(*) FROM parts").fetchone()
+                
             if result:
                 info["parts_count"] = result[0]
                 info["connection_status"] = "functional"
                 
     except Exception as e:
-        info["connection_status"] = f"error: {str(e)}"
+        error_msg = str(e)
+        if "No files found that match the pattern" in error_msg or "/mnt/" in error_msg:
+            info["cross_platform_issue"] = True
+            info["connection_status"] = "cross_platform_error"
+        else:
+            info["connection_status"] = f"error: {error_msg}"
     
     return info
 

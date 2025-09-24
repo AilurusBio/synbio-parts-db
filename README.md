@@ -93,9 +93,18 @@ synbio-parts-db/
 
 ### System Requirements
 - **Python**: 3.8 or higher
+- **System Packages**: 
+  - `python3-venv` (for virtual environment support)
+  - `python3-dev` (for compiling native extensions)
+  - `build-essential` (for building dependencies)
 - **Memory**: 2GB+ RAM recommended for AI features
 - **Storage**: 600MB+ free space (150MB data + 400MB AI models + workspace)
 - **Network**: Stable internet connection required for initial setup and data download
+
+### Platform Compatibility
+- **Linux**: Fully supported (recommended)
+- **macOS**: Supported with minor adjustments
+- **Windows**: Supported via WSL2 or native Python installation
 
 ### Data Sources
 - **Core Database Files**: Automatically downloaded from Cloudflare R2 storage
@@ -140,7 +149,27 @@ synbio-parts-db/
    - Both database files should be downloaded automatically
    - Check data directory for `parts.duckdb` and `parts.db`
 
-5. **AI models not loading**
+5. **Cross-platform database issues** (Critical)
+   ```bash
+   # If you see "No files found that match the pattern" errors:
+   rm data/parts.duckdb  # Remove problematic DuckDB file
+   # Application will automatically use SQLite fallback
+   ```
+   - **Cause**: DuckDB file contains Windows-specific paths
+   - **Solution**: Use SQLite database (fully functional)
+   - **Status**: Application will display cross-platform warning
+
+6. **System dependencies missing**
+   ```bash
+   # Ubuntu/Debian:
+   sudo apt-get update
+   sudo apt-get install python3-venv python3-dev build-essential
+   
+   # CentOS/RHEL:
+   sudo yum install python3-devel gcc gcc-c++
+   ```
+
+7. **AI models not loading**
    - Ensure stable internet connection
    - Check available disk space (500MB+ required)
    - Models are cached in `streamlit_app/models/`

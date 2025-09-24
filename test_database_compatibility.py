@@ -31,6 +31,11 @@ def test_database_compatibility():
     print(f"   🗃️ Database Type: {db_info.get('database_type', 'Unknown')}")
     print(f"   🔗 Connection Status: {db_info.get('connection_status', 'Unknown')}")
     
+    # Check for cross-platform issues
+    if db_info.get('cross_platform_issue'):
+        print("   🚨 Cross-platform issue detected!")
+        print("   ⚠️  DuckDB file contains Windows paths, using SQLite fallback")
+    
     if 'parts_count' in db_info:
         print(f"   📊 Parts Count: {db_info['parts_count']:,}")
     
