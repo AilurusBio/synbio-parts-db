@@ -156,7 +156,7 @@ status() {
 logs() {
     local lines=${1:-50}
     log "📝 Showing last $lines lines of logs..."
-    echo "=== Application Logs ===
+    echo "=== Application Logs ==="
     tail -n "$lines" "$LOG_FILE" 2>/dev/null || echo "Log file not found"
     echo ""
     echo "=== Error Logs ==="
@@ -165,7 +165,7 @@ logs() {
 
 # Real-time logs
 tail_logs() {
-    log "📝 Real-time log viewing (Ctrl+C to exit)..."
+    log "📝 Real-time log viewing - Ctrl+C to exit..."
     tail -f "$LOG_FILE" "$ERROR_LOG" 2>/dev/null
 }
 
